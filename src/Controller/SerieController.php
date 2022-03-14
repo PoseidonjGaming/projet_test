@@ -20,7 +20,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Ods as Write;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Knp\Component\Pager\PaginatorInterface;
+
 use App\Service\Aide;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -257,7 +257,7 @@ class SerieController extends AbstractController
     /**
      * @Route("/test", name="test")
      */
-    public function test(Request $request, PaginatorInterface $paginator,Aide $aide): Response
+    public function test(Request $request, Aide $aide): Response
     { 
         
         dump($_GET,$_POST);

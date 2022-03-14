@@ -16,7 +16,6 @@ use PhpOffice\PhpSpreadsheet\Reader\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Ods as Write;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Knp\Component\Pager\PaginatorInterface;
 use App\Service\Aide;
 
 
@@ -116,7 +115,7 @@ class EpisodeController extends AbstractController
      * @IsGranted("ROLE_admin")
      * @Route("/gerer_episode/{id}", name="gerer_episode")
      */
-    public function gerer_episode(Request $request, $id,Aide $aide, PaginatorInterface $paginator): Response
+    public function gerer_episode(Request $request, $id,Aide $aide): Response
     {
         $rep=$this->getDoctrine()->getRepository(Episode::class);  
         $ListeEpisodes=$rep->findEpisodes($id);
@@ -170,7 +169,7 @@ class EpisodeController extends AbstractController
                 $UnEpisode->setResume(str_replace("'","\'",$UnEpisode->getResume()));
                 $UnEpisode->setResume(str_replace("\r\n"," ",$UnEpisode->getResume()));  
             }
-            $episodes=$aide->pager($ListeEpisodes, $paginator,"saison.serie.id","asc", $request);
+           
             dump($episodes);
         return $this->render('episode/gerer_episode.html.twig', [
             

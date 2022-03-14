@@ -8,25 +8,15 @@
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
 </style>
 
-{% if episodes.isSorted('saison.serie.id') and episodes.getDirection()=="desc" %}
-    {% set ordreSerie = "Z...A" %}
-{% else %}
-    {% set ordreSerie = "A...Z" %}
-{% endif %}
-{% if episodes.isSorted('datePremDiff') and episodes.getDirection()=="desc" %}
-    {% set ordreDate = "Z...A" %}
-{% else %}
-    {% set ordreDate = "A...Z" %}
-{% endif %}
 <div class="example-wrapper">
     <form  method="get" id="form">
         <table class="table table-striped table-hover table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th style="text-align: center; vertical-align: middle; " >Nom</th>
-                    <th style="text-align: center; vertical-align: middle;">Date de diffusion {{ knp_pagination_sortable(episodes, (ordreDate), 'datePremDiff') }}</th>
+                    <th style="text-align: center; vertical-align: middle;">Date de diffusion</th>
                     {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">Serie {{ knp_pagination_sortable(episodes, (ordreSerie), 'saison.serie.id') }}</th>
+                        <th style="text-align: center; vertical-align: middle;">Serie </th>
                     {% endif %}
                     <th style="text-align: center; vertical-align: middle;">Saison</th>
                     <th style="text-align: center; vertical-align: middle;" >                         
@@ -62,7 +52,7 @@
                             {% endfor %}
                         </select>
                         <button type="button" class="btn btn-warning"  name="test" id="test">test</button>#}
-                        {{ knp_pagination_filter(episodes,{'nom':'nom'}) }}
+                    
                     </th>
                     <th style="text-align: center; vertical-align: middle;">Date de diffusion {{ knp_pagination_sortable(episodes, (ordreDate), 'datePremDiff') }}</th>
                     {% if not id is defined %}
@@ -235,9 +225,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
     </div>
 </div>
 
-    <ul class="pagination justify-content-center">
-        {{ knp_pagination_render(episodes) }}
-    </ul>
+    
 
 {% endblock %}
 
