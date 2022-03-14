@@ -479,9 +479,9 @@ class SerieController extends AbstractController
             foreach ($uneSerie->getSaisons() as $uneSaison ){
                 foreach($uneSaison->getEpisodes() as $unEpisode){
                     $data[] = [
+                        'serieId'=>$unEpisode->getSaison()->getSerie()->getId(),
                         'nom'=>$unEpisode->getNom(),
                         'date'=>$unEpisode->getDatePremDiff(),
-                        'serieId'=>$unEpisode->getSaison()->getSerie()->getId(),
                         'serieNom'=>$unEpisode->getSaison()->getSerie()->getNom()
                     ];
                 }

@@ -10,28 +10,40 @@ function deleteRow(){
         e.remove()
     })
 }
-function addCol(test,val,row){
+function addCol(val,row,liste,min,max){
     
     
-    if(test){
-        val.forEach(function(e){
+    i=0
+    for(item in val){
+        if(i!=0){
             newCol=document.createElement('th')
             newCol.style="text-align: center; vertical-align: middle;"
-            newCol.innerHTML=e
-            row.appendChild(newCol)
-        })
+            
+            if(typeof(val[item])===typeof(val['date'])){
+                //console.log(val[item])
+                subDate=val[item].date.substring(0,10).split('-')
+                dateTemp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
+                newCol.innerHTML=temp
+            }
+            else{
+                newCol.innerHTML=val[item]
+            }
+            if(liste.indexOf(val)>=min && liste.indexOf(val)<max){
+                row.appendChild(newCol)
+            }
+        }
+        
+        i++
     }
+    
     
 }
-function pager(){
+function pager(liste){
+    Array.from(document.getElementById('pages').children).forEach(function(e){
+        e.remove()
+    })
     
-    if(window.episodesFiltre.length==0){
-        tempListe=episodes
-    }
-    else{
-        tempListe=episodesFiltre
-    }
-    nbPage=Math.floor(tempListe.length/10)
+    nbPage=Math.floor(liste.length/10)
     
     pages=document.getElementById('pages')
     prev=document.createElement('li')
@@ -79,7 +91,8 @@ function pager(){
 }
 function verif(e){
     bool=true
-    if(window.nom!==""){
+    
+    if(window.nom!=""){
        bool=bool && e['nom'].includes(window.nom)
     }
     if(window.GlobalTarget!="vide"){
@@ -91,57 +104,27 @@ function verif(e){
     }*/
     
     return bool
+    
+    
 }
 
 function filtre(min,max){
     
-    Array.from(document.getElementById('pages').childNodes).forEach(function(e){
-        //console.log(e)
-        e.remove()
-    })
-    deleteRow()
     
-    if(window.episodesFiltre.length==0 || window.GlobalTarget=="vide" || window.nom=="" || window.date==""){
-        tempListe=episodes
-    }
-    else{
-        tempListe=window.episodesFiltre
-    }
-    window.episodesFiltre=[]
-        
-    tempListe.forEach(function(e){
+    deleteRow()    
+    window.episodesFiltre.forEach(function(e){
         
         row=document.createElement('tr')
         splitDate=e['date'].date.substring(0,10).split('-')
         temp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
             
             
-        addCol(verif(e),[e['nom'],temp,e['serieNom']],row)
+        addCol(e,row,window.episodesFiltre,min,max)
             
-            
-                
-            
-            
-            
-        if(row.children['length']>=1){
-            if(min!=null){
-                if(tempListe.indexOf(e)>=min && tempListe.indexOf(e)<max){
-                    window.tbody.appendChild(row)
-                }
-                    
-            }
-            else{
-                window.tbody.appendChild(row)
-            }
-                
-                
-               
-            window.episodesFiltre.push(e)
-        }
-            
-            
+        window.tbody.appendChild(row)  
     })
-    pager()
+    
+    pager(window.episodesFiltre)
     
         
         
@@ -149,10 +132,8 @@ function filtre(min,max){
 
 function modif(min,max){
     filtre(min,max)
-    if(window.episodesFiltre.length==0){
-        filtre(min,max)
-    }
-    //console.log(document.getElementById("prev"))
+    
+    
     if(min!=0 && max!=10){
         document.getElementById("prev").parentElement.setAttribute('class','page-item')
         document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+")")
@@ -170,16 +151,38 @@ function modif(min,max){
     
     
 }
-
+function trie(col, reverse){
+    sortListe=[]
+    tempListe=[]
+    window.episodesFiltre=[]
+    window.episodes.forEach(function(e){
+        if(verif(e)){
+            tempListe.push(e)
+            sortListe.push(e[col])
+        }
+    })
+    sortListe.sort()
+    if(reverse){
+        sortListe.reverse()
+    }
+    
+    sortListe.forEach(function(nom){
+        
+        tempListe.forEach(function(e){
+            if(e[col]==nom){
+                window.episodesFiltre.push(e)
+            }
+        })
+    })
+    modif(0,10)
+}
 $('#ep').change(function(e){
     target=e.target.value
     window.GlobalTarget=target
     
    
-    filtre()
-    if(window.episodesFiltre.length==0){
-        filtre()
-    }
+    modif(0,10)
+    
     
      
 })
@@ -198,12 +201,13 @@ $('#titre').keyup(function(e){
    
     window.nom=target
     
+    window.episodesFiltre=[]
+    window.episodes.forEach(function(e){
+        verif(e,window.episodesFiltre)
+    })
     
+    modif(0,10)
     
-    filtre()
-    if(window.episodesFiltre.length==0){
-        filtre()
-    }
     
 
 })
@@ -213,14 +217,28 @@ $('#dateStart').change(function(e){
     subDate=target.split('-')
     window.date=subDate[2]+'/'+subDate[1]+'/'+subDate[0]
     
+    window.episodes.forEach(function(e){
+        verif(e,window.episodesFiltre)
+    })
+    modif(0,10)
     
-    filtre()
-    if(window.episodesFiltre.length==0){
-        filtre()
-    }
     
     
     
 
+})
+
+$('#sort_nom').click(function(){
+    //console.log(this.innerHTML)
+    
+    if(this.innerHTML=="A...Z"){
+        trie('nom',false)
+        this.innerHTML="Z...A"
+    }
+    else{
+        trie('nom',true)
+        this.innerHTML="A...Z"
+    }
+    
 })
 
