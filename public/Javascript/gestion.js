@@ -182,7 +182,12 @@ function trie(col, reverse){
 $('#ep').change(function(e){
     target=e.target.value
     window.GlobalTarget=target
-    
+    window.episodesFiltre=[]
+    window.episodes.forEach(function(e){
+        if(verif(e)){
+            window.episodesFiltre.push(e)
+        }
+    })
    
     modif(0,10,1)
     
@@ -206,7 +211,9 @@ $('#titre').keyup(function(e){
     
     window.episodesFiltre=[]
     window.episodes.forEach(function(e){
-        verif(e,window.episodesFiltre)
+        if(verif(e)){
+            window.episodesFiltre.push(e)
+        }
     })
     
     modif(0,10,1)
@@ -232,7 +239,7 @@ $('#dateStart').change(function(e){
 })
 
 $('#sort_nom').click(function(){
-    //console.log(this.innerHTML)
+   
     
     if(this.innerHTML=="Default"){
         trie('nom',false)

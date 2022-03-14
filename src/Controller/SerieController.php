@@ -15,11 +15,8 @@ use App\Form\ImportFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints\DateTime;
-use PhpOffice\PhpSpreadsheet\Reader\Ods;
-use PhpOffice\PhpSpreadsheet\Writer\Ods as Write;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 use App\Service\Aide;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -264,7 +261,7 @@ class SerieController extends AbstractController
         
         $series=$this->getDoctrine()->getRepository(Serie::class)->findAll();
         $acteurs=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
-        
+        //dump($series[0]->dataJson());
         return $this->render('home/test.html.twig', [
             'acteurs'=>$acteurs,
             "series"=>$series
@@ -289,184 +286,6 @@ class SerieController extends AbstractController
     }
 
     /**
-     * @Route("/import_serie/{fic}", name="import_serie")
-     */
-    public function import_serie(Request $request,$fic): Response
-    { 
-        ini_set('max_execution_time', 100000);
-        $repSerie=$this->getDoctrine()->getRepository(Serie::class);
-        $repSaison=$this->getDoctrine()->getRepository(Saison::class);
-        $entityManager = $this->getDoctrine()->getManager();
-               
-        $array_nom=explode(",", $fic);
-        $fic1='';
-       
-    
-        for($i=1; $i < count($array_nom); $i++){
-        
-            if($i==count($array_nom) || count($array_nom)==2 ){
-                $fic1=$fic1.$array_nom[$i];
-            }
-            else{
-                $fic1=$fic1.$array_nom[$i].",";
-            }
-            
-        }
-        $reader = new Ods(); 
-        
-        $reader->setReadDataOnly(TRUE);
-       
-        $spreadsheet = $reader->load($this->getParameter('photo_directory')."import/".$array_nom[0]);
-        $worksheet = $spreadsheet->getActiveSheet();
-
-        $maxLigne = $worksheet->getHighestRow(); 
-        $maxCol = $worksheet->getHighestColumn(); 
-        $maxColId = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($maxCol);
-        
-
-        $titreCol=array();
-
-        for($ligne=1; $ligne <= $maxLigne; $ligne++){
-           $serie=new Serie();
-            for($col = 1; $col <= $maxColId; $col++){
-                $value = $worksheet->getCellByColumnAndRow($col,$ligne)->getValue();
-               
-                if($value!=null){
-                
-                    if($ligne==1){
-                        $titreCol[$value]=$col;
-                        
-                    }
-                    else{
-                        
-                        if($col==$titreCol['Nom']){
-                            $serie->setNom($value);
-                            
-                        }
-                        if($col==$titreCol['Résumé']){
-                           $serie->setResume($value);
-                           
-                        }
-                        if($col==$titreCol['Date']){
-                            $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
-                            
-                            $serie->setDateDiff($date);
-                        }
-                        if($col==$titreCol['Saison']){
-                            
-                            for ($i = 1; $i <= intval($value); $i++) {
-                                $saison=new Saison();
-                                $saison->setNbEpisode(1);
-                                $saison->setNumero($i);
-                                $serie->addSaison($saison);
-                                $entityManager->persist($saison);
-                            }
-                        }
-                        if($col==$titreCol['Affiche']){
-                            $serie->setAffiche($value);
-                        }
-                        if($col==$titreCol['URL Bande Annonce']){
-                            $serie->setUrlBa($value);
-                        }
-
-                        if($col==$maxColId){
-                            $entityManager->persist($serie);
-                            $entityManager->flush();
-                        }
-                        
-                    }
-                }
-            }
-        }
-        unlink($this->getParameter('photo_directory')."import/".$array_nom[0]);
-        if($fic1==""){
-            return $this->redirectToRoute('gerer_serie');
-        }
-        else{
-            return $this->redirectToRoute('carrefour',array('tab'=>$fic1));
-            
-        }
-        
-    }
-    /**
-     * @Route("/export_serie/{fic}", name="export_serie")
-     */
-    public function export_serie(Request $request,$fic): Response
-    { 
-        ini_set('max_execution_time', 100000);
-        $repSerie=$this->getDoctrine()->getRepository(Serie::class);
-        $entityManager = $this->getDoctrine()->getManager();
-               
-        $array_nom=explode(",", $fic);
-        $fic1='';
-       
-    
-        for($i=1; $i < count($array_nom); $i++){
-            if($i==count($array_nom)-1 || count($array_nom)==2 ){
-                $fic1=$fic1.$array_nom[$i];
-            }
-            elseif($fic!=''){
-                $fic1=$fic1.$array_nom[$i].",";
-            }
-            dump($fic1);
-            
-        }
-        $spread=new SpreadSheet();
-        $writer = new Write($spread); 
-        
-        $data=[['Nom','Résumé','Date','Saison','Affiche','URL Bande Annonce']];
-        if($_GET==[] && $array_nom[0]=='series'){
-            $series=$repSerie->findAll();
-        }
-        elseif($_GET==[]){
-            $tab=array_keys($_GET);
-            $series=[];
-            foreach($tab as $int){
-                        
-                if($int != "checkall"){
-                    $serie=$entityManager->getRepository(Serie::class)->findUneSerie($int);
-                    array_push($series,$serie);
-                }
-            }
-        }
-        else{
-            $series=null;
-        }
-
-        if($series!=null){
-            $affiches="";
-            foreach($series as $uneSerie){
-                
-                $serie=[$uneSerie->getNom(),$uneSerie->getResume(), \PhpOffice\PhpSpreadsheet\Shared\Date::stringToExcel( $uneSerie->getDateDiff()->format('d/m/Y')),count($uneSerie->getSaisons()),$uneSerie->getAffiche(),$uneSerie->getUrlBa()];
-                
-                array_push($data, $serie);
-                if($affiches==""){
-                    $affiches=$uneSerie->getAffiche();
-                }
-                else{
-                    $affiches=$affiches.','.$uneSerie->getAffiche();
-                }
-            }
-            $spread->getActiveSheet()->fromArray($data,NULL,'A1');
-            
-           
-    
-            
-            $writer->save($this->getParameter('photo_directory').'export/serie.ods');    
-            $fic1=$fic1.','.$affiches;
-            
-            return $this->redirectToRoute('carrefour_export',array('tab'=>$fic1));
-           
-          
-        }
-        else{
-           
-            return $this->redirectToRoute('gerer_serie');
-           
-        }
-       
-    }
-    /**
      * @Route("/menuJSON", name="menuJSON")
      */
     public function menuJSON(): JsonResponse
@@ -474,6 +293,7 @@ class SerieController extends AbstractController
         
        
         $series = $this->getDoctrine()->getRepository(Serie::class)->findAll();
+        
         $data = [];
         foreach($series as $uneSerie){
             foreach ($uneSerie->getSaisons() as $uneSaison ){

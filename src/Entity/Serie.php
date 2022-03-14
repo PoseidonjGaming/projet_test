@@ -188,7 +188,7 @@ class Serie
 
    
     public function dataJson(){
-        $data=[$this->$id,$this->$nom,$this->$dateDiff,$this->$resume,$this->affiche,$this->urlBa];
+        $data=[$this->getId(),$this->getNom(),$this->getDateDiff(),$this->getResume(),$this->getAffiche(),$this->getUrlBa()];
         return $data;
     }
 

@@ -15,6 +15,7 @@ use App\Entity\Episode;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Service\Aide;
 
 
 class HomeController extends AbstractController
@@ -51,29 +52,28 @@ class HomeController extends AbstractController
      * @IsGranted("ROLE_admin")
      * @Route("/carrefour/{tab}", name="carrefour")
      */
-    public function carrefour($tab): Response
+    public function carrefour($tab,Aide $aide): Response
     {
         $array_nom=explode(",", $tab);
+        foreach($array_nom as $fic){
+            if($fic=='serie.ods'){
+                $aide->import_serie();
+            }
+            elseif($fic=='episode.ods'){
+                $aide->import_episode();
+            }
+            elseif($fic=='acteur.ods'){
+                $aide->import_acteur();
+            }
+            elseif($fic=='personnage.ods'){
+                $aide->import_personnage();
+            }
+            else{
+                return $this->redirectToRoute('serie');
+                
+            }
+        }
         
-        if($array_nom[0]=='serie.ods'){
-            return $this->redirectToRoute('import_serie',array('fic' => $tab));
-        }
-        elseif($array_nom[0]=='episode.ods'){
-            return $this->redirectToRoute('import_episode',array('fic' => $tab));
-        }
-        elseif($array_nom[0]=='acteur.ods'){
-            return $this->redirectToRoute('import_acteur',array('fic' => $tab));
-        }
-        elseif($array_nom[0]=='personnage.ods'){
-            return $this->redirectToRoute('import_personnage',array('fic' => $tab));
-        }
-        else{
-            return $this->redirectToRoute('serie');
-            /*return $this->render('home/test.html.twig', [
-            
-          
-            ]);*/
-        }
         
     }
 
@@ -81,7 +81,7 @@ class HomeController extends AbstractController
      * @IsGranted("ROLE_admin")
      * @Route("/import", name="import")
      */
-    public function import(): Response
+    public function import(Aide $aide): Response
     {
         
         $tab="";
@@ -98,7 +98,7 @@ class HomeController extends AbstractController
                 else{
                     copy($_FILES['fichierSerie']['tmp_name'][$i],$this->getParameter('photo_directory').'/import//'.'serie.ods');
                     
-                        $tab='serie.ods';
+                    $tab='serie.ods';
                 }
                 
                 $i++;
@@ -141,8 +141,7 @@ class HomeController extends AbstractController
             
             
         }
-        $zip=new \ZipArchive();
-        $zip->open($this->getParameter('photo_directory')."/export//"."Export_donnée.zip",\ZipArchive::CREATE);
+        
         
         /*return $this->render('home/test.html.twig', [
             
@@ -157,68 +156,23 @@ class HomeController extends AbstractController
      * @IsGranted("ROLE_admin")
      * @Route("/export", name="export")
      */
-    public function export(): Response
+    public function export(Aide $aide): Response
     {
         
-        $tab=" ";
-        
-        
-        
-
         if(isset($_POST['series'])){
-            $tab="series";
+           $affiches=$aide->export_serie($_GET);
         }
         if(isset($_POST['episode'])){
-            if($tab==" "){
-                $tab="episode";
-            }
-            else{
-                $tab=$tab.",episode";
-            }
+           $aide->export_episode($_GET);
         }
         if(isset($_POST['acteur'])){
-            if($tab==" "){
-                $tab="acteur";
-            }
-            else{
-                $tab=$tab.",acteur";
-            }
+           $aide->export_acteur($_GET);
         }
         if(isset($_POST['personnage'])){
-            if($tab==" "){
-                $tab="personnage";
-            }
-            else{
-                $tab=$tab.",personnage";
-            }
+           $aide->export_personnage($_GET);
         }
-        dump($tab);
         
-        return $this->redirectToRoute('carrefour_export',array('tab' => $tab));
-    }
-
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/carrefour_export/{tab}", name="carrefour_export")
-     */
-    public function carrefour_export($tab): Response
-    {
         
-        $array_nom=explode(",", $tab);
-        dump($array_nom);
-        if($array_nom[0]=='series'){
-            return $this->redirectToRoute('export_serie',array('fic' => $tab));
-        }
-        elseif($array_nom[0]=='episode'){
-            return $this->redirectToRoute('export_episode',array('fic' => $tab));
-        }
-        elseif($array_nom[0]=='personnage'){
-            return $this->redirectToRoute('export_personnage',array('fic' => $tab));
-        }
-        elseif($array_nom[0]=='acteur'){
-            return $this->redirectToRoute('export_acteur',array('fic' => $tab));
-        }
-
         $zip=new \ZipArchive();
         $zip->open($this->getParameter('photo_directory').'/export//'.'Export_donnée.zip',\ZipArchive::CREATE);
         
@@ -234,8 +188,8 @@ class HomeController extends AbstractController
             $zip->addFile($this->getParameter('photo_directory').'/export//'.'serie.ods','Serie/'.'serie.ods');
             $dir=opendir($this->getParameter('photo_directory').'/photo//');
             while($file=readdir($dir)){
-                foreach($array_nom as $affiche){
-                    dump($array_nom,$file);
+                foreach($affiches as $affiche){
+                    
                     if(file_exists($this->getParameter('photo_directory').'/photo//'.$file) && $file!='.' && $file!='..' && $file==$affiche){
                         
                         $zip->addFile("photo/".$file,'Serie/'.$file);
@@ -249,10 +203,6 @@ class HomeController extends AbstractController
         }
         
         $zip->close();
-
-        
-        
-      
         
         if(file_exists($this->getParameter('photo_directory').'/export//'."Export_donnée.zip")){
             $response = new Response(file_get_contents($this->getParameter('photo_directory')."export/".'Export_donnée.zip'));
@@ -280,10 +230,8 @@ class HomeController extends AbstractController
            return $this->redirectToRoute('serie');
             
         }
-       
-        
-        
-        
     }
+
+    
     
 }
