@@ -35,9 +35,6 @@ class Serie
      */
     private $resume;
 
-    
-
-
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
@@ -190,7 +187,10 @@ class Serie
     }
 
    
-   
+    public function dataJson(){
+        $data=[$this->$id,$this->$nom,$this->$dateDiff,$this->$resume,$this->affiche,$this->urlBa];
+        return $data;
+    }
 
     
 }

@@ -14,7 +14,7 @@
     <table class="table table-striped table-hover table-bordered">
         <thead class="table-dark">
             <tr>
-                <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">A...Z</a></th>
+                <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
                 <th style="text-align: center; vertical-align: middle;">Date de diffusion </th> 
                 <th style="text-align: center; vertical-align: middle;">Serie </th>
                 <th style="text-align: center; vertical-align: middle;">Saison</th>
@@ -70,7 +70,7 @@ $(document).ready(function(){
         
         success: function(element){
             
-            episodes=element
+            window.episodes=element
             document.getElementById('ep').children[0].setAttribute('selected','selected')
             document.getElementById('titre').value=""
             window.nom=""
@@ -84,7 +84,7 @@ $(document).ready(function(){
                     window.episodesFiltre.push(e)
                 }
             })
-            modif(0,10)
+            modif(0,10,1)
             
             
 
