@@ -1,0 +1,564 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des séries{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { font: 18px/1.5 sans-serif; background-color: #F5F5F5;}
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <form  method="get" id="form">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th style="text-align: center; vertical-align: middle;">Nom</th>
+                    <th style="text-align: center; vertical-align: middle;">Date de diffusion</th>
+                    <th style="text-align: center; vertical-align: middle;">Nombre de saison</th>
+                    <th style="text-align: center; vertical-align: middle;">Nombre d'épisode</th>
+                    <th style="text-align: center; vertical-align: middle;">
+                        <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
+                        onclick="modifier()"> 
+                            Ajouter une série
+                        </button>
+                        <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer()"> Supprimer plusieurs séries</button>
+                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
+                        onclick="exporter()"> 
+                            Exporter une série
+                        </button>
+                        <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_series_add"> 
+                            Ajouter plusieurs séries
+                        </button>
+                    </th>
+                    <th style="text-align: center; vertical-align: middle;" >
+                        <label for="checkall">
+                            <input type="checkbox" id='checkall' name="checkall" > Tout cocher
+                        </label>     
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for uneSerie in serie %}
+                <tr>
+                    <td style="text-align: center; vertical-align: middle;">{{uneSerie.nom}}</td>
+                    <td style="text-align: center; vertical-align: middle;">{{uneSerie.dateDiff|date("d/m/Y")}}</td>
+                    <td style="text-align: center; vertical-align: middle;"> {{uneSerie.saisons|length}} </td>
+                    {% set nbEP = 0 %}
+                    {% for uneSaison in uneSerie.saisons %}      
+                        {% set nbEP = nbEP + uneSaison.episodes|length  %}
+                    {% endfor %}
+                    <td style="text-align: center; vertical-align: middle;"> {{nbEP}} </td>    
+                    <td style="text-align: center; vertical-align: middle;"> 
+                        <button type="button" class="btn btn-warning"  name="{{uneSerie.id}}" id="{{uneSerie.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{uneSerie.nom}}','{{uneSerie.dateDiff|date("Y-m-d")}}','{{uneSerie.resume}}','{{uneSerie.urlBa}}','{{uneSerie.affiche}}','{{uneSerie.id}}')"> 
+                            Modifier
+                        </button>
+                        <button type="button" class="btn btn-danger"  name="supSerie" id="supSerie" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{uneSerie.id}}')">Supprimer</button>
+                        <a type="button" class="btn btn-primary" href="{{path('gerer_episode',{'id': uneSerie.id})}}">Gerer les épisodes</a>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;"><input type="checkbox" id='{{uneSerie.id}}' name="{{uneSerie.id}}"></td>
+                </tr> 
+                {% endfor %}
+            </tbody>
+        </table>       
+        <div class="modal fade" id="modal_supprimer" tabindex="-1" data-bs-keyboard="false" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
+            <div class="modal-dialog" >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="supModalLongTitle"> Suppression de la série </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <p id="pModalAutre">Êtes-vous sur de vouloir supprimer la ou les série(s) ?</p>
+                        </div>     
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon">Non</button>  
+                        <input type="submit" class="btn btn-danger delete"  id="submitAutre" value="Oui">
+                    </div>      
+                </div>
+            </div>
+        </div>
+    </form> 
+</div>
+<div class="modal fade " id="modal_modifier" tabindex="-1" data-bs-keyboard="true" 
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >  
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle"> Modification de la série </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row" >
+                            <div class="col-md-4" style="width: 500px;">
+                                {{form_start(formSerie)}}
+                                    <p>Nom: {{form_widget(formSerie.nom)}}</p>                   
+                                    <p>Date de diffusion: {{form_widget(formSerie.date_diff)}}</p>
+                                    <p>{{form_label(formSerie.resume,'Résumé:')}} {{form_widget(formSerie.resume)}}</p>
+                                    <p>{{form_label(formSerie.url_ba,'Lien de la bande annonce: ')}} {{form_widget(formSerie.url_ba)}}</p>
+                                    <p>Affiche: {{form_widget(formSerie.photo)}}</p>
+                                    
+                                    <div id='perso'>
+                                        <p>
+                                            <button type="button" class="btn btn-success" name="add" id="add" onclick="addPerso('solo')"> 
+                                                Ajouter
+                                            </button>
+                                            <button type="button" class="btn btn-danger" name="sup" id="sup" onclick="supprimerPerso('solo')"> 
+                                                Retirer
+                                            </button>
+                                        </p>
+                                        <p id="perso_0">
+                                            <select name="acteur_0" id="acteur_0">
+                                                <option value="">--Please choose an option--</option>
+                                                {% for unActeur in acteurs %}
+                                                    <option value="{{unActeur.id}}">{{unActeur.prenom}} {{unActeur.nom}}</option>
+                                                {% endfor %}   
+                                            </select>
+                                            <input type="text" id="persoNom_0" name="persoNom_0"placeholder="Nom du personnage">
+                                        </p>
+                                    </div>
+                                    {{form_widget(formSerie.reset)}}
+                                    <input id="ID" name="ID" type="hidden">
+                            </div>
+                            <div class="col-md-6">
+                                <img id="image"   alt="affiche"  style="max-width: 500px; max-heigth: 200px;">
+                            </div>
+                        </div>
+                    </div>                
+                </div>
+                <div class="modal-footer">
+                    {{form_widget(formSerie.Valider)}}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon" >Non</button>
+                {{form_end(formSerie)}}              
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade  " id="modal_series_add" tabindex="-1" data-bs-keyboard="true" 
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >  
+        <div class="modal-dialog modal-fullscreen" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle"> Ajout de plusieurs séries </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="ajout/series" enctype="multipart/form-data">
+                        <table class="table table-striped table-hover table-bordered" >
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="text-align: center; vertical-align: middle; " >Nom</th>
+                                    <th style="text-align: center; vertical-align: middle;">Résumé</th>
+                                    <th style="text-align: center; vertical-align: middle;">Date</th>
+                                    <th style="text-align: center; vertical-align: middle;">Saison</th>
+                                    <th style="text-align: center; vertical-align: middle;">Affiche</th>
+                                    <th style="text-align: center; vertical-align: middle;">Lien de la Bande Annonce</th>
+                                    <th style="text-align: center; vertical-align: middle;">Personnage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="persoS">
+                                <tr>
+                                    <th style="text-align: center; vertical-align: middle;" colspan="7"> 
+                                        <button type="button" class="btn btn-success"  name="addS" id="addS"> 
+                                            Ajouter une série
+                                        </button>
+                                        <button type="button" class="btn btn-danger"  name="supS" id="supS"> 
+                                            Retirer une série
+                                        </button>
+                                        <input class="btn btn-primary" type="submit" id="submit" name="submit" value="Valider">
+                                    </th>
+                                </tr>
+                                <input type="hidden" id="maxSerie" name="maxSerie" value="1">
+                                <tr id="row_0">
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="text" id="inputNom_0" name="inputNom_0">
+                                    </th>  
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <textarea id="inputResume_0" name="inputResume_0"
+                                        rows="2" cols="45"></textarea>
+                                    </th> 
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="date" id="inputDate_0" name="inputDate_0">
+                                    </th>
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="number" id="inputSaison_0" name="inputSaison_0" min="1" value="1">
+                                    </th>
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="file" id="inputFile_0" name="inputFile_0"accept="image/png, image/jpeg">
+                                    </th>
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="text" id="inputURL_0" name="inputURL_0">
+                                    </th>
+                                    <th style="text-align: center; vertical-align: middle; ">
+                                        <button class="btn btn-primary" type="button" data-bs-toggle="collapse"
+                                        aria-expanded="false" href="#collapsePerso_0" aria-controls="collapsePerso_0">
+                                            Personnages
+                                        </button>
+                                        <button type="button" class="btn btn-success" name="add" id="add" onclick="addPerso('multiple','0')"> 
+                                            Ajouter
+                                        </button>
+                                        <button type="button" class="btn btn-danger" name="sup" id="sup" onclick="supprimerPerso('multiple','0')"> 
+                                                Retirer
+                                        </button>
+                                    </th>
+                                </tr>
+                               
+                                <tr class="collapse" id="collapsePerso_0">
+                                    <th style="text-align: center; vertical-align: middle;" colspan="7">
+                                        
+                                        <p id="persoTab_0_0">
+                                            <select name="acteur_0_0" id="acteur_0_0">
+                                                {% for unActeur in acteurs %}
+                                                    <option value="{{unActeur.id}}">{{unActeur.prenom}} {{unActeur.nom}}</option>
+                                                {% endfor %}   
+                                            </select>
+                                            <input type="text" id="persoNom_0_0" name="persoNom_0_0"placeholder="Nom du personnage"> 
+                                        </p>
+                                    </th>
+                                    <input type="hidden" id="nbPerso_0" name="nbPerso_0" value="1">
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon" >Non</button>             
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+    
+    $('#checkall').change(function () {
+        if($( this ).prop( "checked" )){$('input:checkbox').attr('checked','checked');} 
+        else $('input:checkbox').removeAttr('checked');
+    }); 
+
+    function modifier(nom, dateDiff, resume, url, affiche, id){
+        
+        if(id!=null){
+            document.getElementById('serie_form_nom').setAttribute('value', nom);
+            document.getElementById('serie_form_date_diff').setAttribute('value', dateDiff);
+            document.getElementById('serie_form_resume').value=resume;
+            document.getElementById('serie_form_url_ba').setAttribute('value', url);
+            document.getElementById('image').setAttribute('src','/photo/'+affiche);
+            document.getElementById('ID').setAttribute('value',id);
+            document.getElementById('exampleModalLongTitle').innerHTML="Modification de la série" ;  
+            
+        }
+        else{
+            document.getElementById('serie_form_photo').setAttribute('value','');
+            document.getElementById('serie_form_nom').setAttribute('value','');
+            document.getElementById('serie_form_date_diff').setAttribute('value','');
+            document.getElementById('serie_form_resume').value='';
+            document.getElementById('serie_form_url_ba').setAttribute('value','');
+            document.getElementById('image').setAttribute('src','');
+            document.getElementById('ID').setAttribute('value','');
+            document.getElementById('exampleModalLongTitle').innerHTML="Ajouter une série" ;
+            
+        }
+        
+    }
+   
+
+    function supprimer(Id){
+        document.getElementById('submitAutre').setAttribute('class','btn btn-danger');
+        if(Id==null){
+            document.getElementById('form').action='/supprimer_series';
+        }
+        else{
+            
+            document.getElementById('form').action='/supprimer_serie/'+Id;
+        }
+        
+    }
+    function exporter(Id,fic){
+        document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
+        document.getElementById('pModalAutre').innerHTML="Exporter ces séries";
+        document.getElementById('supModalLongTitle').innerHTML="Exportation"
+        if(fic==null){
+            
+            
+            document.getElementById('form').action='/export_serie/1';
+            
+        }
+        else{
+           
+            document.getElementById('form').action='/export_serie/'+Id;
+        }
+        
+    }
+
+    function previewPicture (e){
+        var image = document.getElementById('image');
+        
+        const [picture] = e.files;
+        if (picture) {
+            image.src = URL.createObjectURL(picture);
+            
+        } 
+    }
+
+    
+
+    function addPerso(tag, num){
+        
+        
+        
+        p=document.createElement('p')
+        selectBase=document.getElementById('acteur_0')
+        select=document.createElement('select')
+        input=document.createElement('input')
+
+        if(tag=="multiple"){
+            
+            balise=document.getElementById('collapsePerso_'+num).children[0]
+            nbPerso=document.getElementById('nbPerso_'+num)
+            numero=balise.children['length']
+           
+            p.setAttribute('id','persoTab_'+num+'_'+numero)
+            nbPerso.setAttribute('value',numero+1)
+
+            select.setAttribute('id','acteur_'+num+"_"+numero)
+            select.setAttribute('name','acteur_'+num+"_"+numero)
+
+            input.setAttribute('id','persoNom_'+num+"_"+numero)
+            input.setAttribute('name','persoNom_'+num+"_"+numero)
+        }
+        else{
+            balise=document.getElementById('perso')
+            numero=balise.children['length']-1
+            
+            p.setAttribute('id','perso_'+numero)
+            select.setAttribute('id','acteur_'+numero)
+            select.setAttribute('name','acteur_'+numero)
+            input.setAttribute('id','persoNom_'+numero)
+            input.setAttribute('name','persoNom_'+numero)
+        }
+        
+       
+        
+        
+        for (i = 0; i < selectBase.options.length; i++) {
+            select[select.options.length]=new Option(selectBase.options[i].label,selectBase.options[i].value)
+        }
+        
+        input.type='text'
+        
+        input.setAttribute('placeholder','Nom du personnage')
+        
+        
+        p.appendChild(select)
+        p.appendChild(input)
+        balise.appendChild(p)
+
+        
+        
+    }
+    
+    
+   
+    
+    function supprimerPerso(tag,num){
+        
+        bool=true
+        if(tag=='multiple'){
+            balise=document.getElementById('collapsePerso_'+num)
+            nbPerso=document.getElementById('nbPerso_'+num)
+            numero=balise.children[0].children['length']
+            perso=balise.children[0].lastElementChild
+            if(numero-1==0){
+                nbPerso.setAttribute('value',1)
+            }
+            else{
+                nbPerso.setAttribute('value',numero-1)
+            }
+            
+            if(perso.getAttribute('id')=='persoTab_'+num+"_0"){
+                bool=false
+                
+            }
+            
+        }
+        else{
+            balise=document.getElementById('perso')
+            perso=balise.lastElementChild
+            console.log(perso.getAttribute('id'))
+            if(perso.getAttribute('id')=="perso_0"){
+                bool=false  
+            }
+           
+        }
+        
+        if(bool){
+            perso.remove()
+        }
+    }
+
+    $('#addS').click(function(){
+     
+        
+        inputMax=document.getElementById('maxSerie')
+        nbSerie=parseInt(inputMax.getAttribute('value'))
+        inputMax.setAttribute('value',nbSerie+1)
+        balise=document.getElementById('persoS')
+        row=document.createElement('tr')
+        rowPerso=document.createElement('tr')
+
+        row.setAttribute('id',"row_"+nbSerie)
+        rowPerso.setAttribute('id',"collapsePerso_"+nbSerie)
+        rowPerso.setAttribute('class',"collapse")
+        
+        colNom=document.createElement('th')
+        colNom.style="text-align: center; vertical-align: middle;"
+        
+        inputNom=document.createElement('input')
+        inputNom.type="text"
+        inputNom.setAttribute('id',"inputNom_"+nbSerie)
+        inputNom.setAttribute('name',"inputNom_"+nbSerie)
+
+        colNom.appendChild(inputNom)
+
+        colResume=document.createElement('th')
+        colResume.style="text-align: center; vertical-align: middle;"
+        
+        inputResume=document.createElement('textarea')
+        inputResume.rows=2
+        inputResume.cols=45
+        inputResume.setAttribute('id',"inputResume_"+nbSerie)
+        inputResume.setAttribute('name',"inputResume_"+nbSerie)
+        
+        colResume.appendChild(inputResume)
+
+        colDate=document.createElement('th')
+        colDate.style="text-align: center; vertical-align: middle;"
+        
+        inputDate=document.createElement('input')
+        inputDate.type="date"
+        inputDate.setAttribute('id',"inputDate_"+nbSerie)
+        inputDate.setAttribute('name',"inputDate_"+nbSerie)
+        
+        colDate.appendChild(inputDate)
+
+        colFichier=document.createElement('th')
+        colFichier.style="text-align: center; vertical-align: middle;"
+        
+        inputFile=document.createElement('input')
+        inputFile.type="file"
+        inputFile.setAttribute('id',"inputFile_"+nbSerie)
+        inputFile.setAttribute('name',"inputFile_"+nbSerie)
+        inputFile.setAttribute('accept',"image/png, image/jpeg")
+        
+        colFichier.appendChild(inputFile)
+        
+        colSaison=document.createElement('th')
+        colSaison.style="text-align: center; vertical-align: middle;"
+        
+        inputSaison=document.createElement('input')
+        inputSaison.type="number"
+        inputSaison.setAttribute('min',1)
+        inputSaison.setAttribute('value',1)
+        inputSaison.setAttribute('id',"inputSaison_"+nbSerie)
+        inputSaison.setAttribute('name',"inputSaison_"+nbSerie)
+        
+        colSaison.appendChild(inputSaison)
+        
+        colPerso=document.createElement('th')
+        colPerso.style="text-align: center; vertical-align: middle;"
+        
+        ButtonPerso=document.createElement('button')
+        ButtonPerso.setAttribute('class',"btn btn-primary")
+        ButtonPerso.setAttribute('type',"button")
+        ButtonPerso.setAttribute('data-bs-toggle',"collapse")
+        ButtonPerso.setAttribute('aria-controls',"collapsePerso_"+nbSerie)
+        ButtonPerso.setAttribute('aria-expanded',"false")
+        ButtonPerso.setAttribute('href',"#collapsePerso_"+nbSerie)
+        
+        ButtonPerso.innerText="Personnage"
+        colPerso.appendChild(ButtonPerso)
+
+        ButtonPersoAjout=document.createElement('button')
+        ButtonPersoAjout.setAttribute('class',"btn btn-success")
+        ButtonPersoAjout.setAttribute('type',"button")
+        ButtonPersoAjout.setAttribute('onclick',"addPerso('multiple',"+nbSerie+')')
+        
+        ButtonPersoAjout.innerText="Ajouter"
+        colPerso.appendChild(ButtonPersoAjout)
+
+        ButtonPersoRetirer=document.createElement('button')
+        ButtonPersoRetirer.setAttribute('class',"btn btn-danger")
+        ButtonPersoRetirer.setAttribute('type',"button")
+        ButtonPersoRetirer.setAttribute('onclick',"supprimerPerso('multiple',"+nbSerie+')')
+       
+        
+        ButtonPersoRetirer.innerText="Retirer"
+        colPerso.appendChild(ButtonPersoRetirer)    
+        
+        perso=document.createElement('th')
+        perso.style="text-align: center; vertical-align: middle;"
+        perso.setAttribute('colspan',"7")
+       
+        
+        inputMaxPerso=document.createElement('input')
+        inputMaxPerso.type="hidden"
+        inputMaxPerso.setAttribute('id',"nbPerso_"+nbSerie)
+        inputMaxPerso.setAttribute('name',"nbPerso_"+nbSerie)
+        inputMaxPerso.setAttribute('value','1')
+
+        colBa=document.createElement('th')
+        colBa.style="text-align: center; vertical-align: middle;"
+        
+        inputNom=document.createElement('input')
+        inputNom.type="text"
+        inputNom.setAttribute('id',"inputURL_"+nbSerie)
+        inputNom.setAttribute('name',"inputURL_"+nbSerie)
+
+        colBa.appendChild(inputNom)
+        
+        
+        rowPerso.appendChild(perso)
+        rowPerso.appendChild(inputMaxPerso)
+
+        row.appendChild(colNom)
+        row.appendChild(colResume)
+        row.appendChild(colDate)
+        row.appendChild(colSaison)
+        row.appendChild(colFichier)
+        row.appendChild(colBa)
+        row.appendChild(colPerso)
+      
+        balise.appendChild(row)
+        balise.appendChild(rowPerso)
+        
+        addPerso('multiple',nbSerie)
+        
+       
+        
+    });
+    $('#supS').click(function(){
+
+        maxSerie=document.getElementById('maxSerie')
+        maxSerieInt=parseInt(maxSerie.getAttribute('value'))
+        maxSerieInt=maxSerieInt-1
+        baliseRow=document.getElementById('row_'+maxSerieInt.toString())
+        balise=document.getElementById('collapsePerso_'+maxSerieInt.toString())
+       
+       
+        if(baliseRow.getAttribute('id')!='row_0' || balise.getAttribute('id')!='collapsePerso_0'){
+            baliseRow.remove()
+            balise.remove()
+            maxSerie.setAttribute('value',maxSerieInt)
+        }
+    })
+</script>
+{% endblock %}

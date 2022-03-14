@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { font: 18px/1.5 sans-serif; background-color: #F5F5F5;}
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <form method="get" id="form">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th style="text-align: center; vertical-align: middle; " >Nom</th>
+                    <th style="text-align: center; vertical-align: middle;">
+                        &nbsp;
+                        <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
+                        onclick="modifier()"> 
+                            Ajouter une saison
+                        </button>
+                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer tous les utilisateur</button>
+                </th>
+                <th style="text-align: center; vertical-align: middle;" >
+                        &nbsp;
+                        <label for="checkall">
+                            <input type="checkbox" id='checkall' name="checkall" > Tout cocher
+                        </label>    
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for unUser in user %}
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">{{unUser.nom}}</th>
+                <th style="text-align: center; vertical-align: middle;">  
+                    <button type="button" class="btn btn-warning"  name="{{unUser.id}}" id="{{unUser.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{unUser.nom}}','{{unUser.id}}')"> 
+                        Modifier
+                    </button>
+                    <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unUser.id}}')">Supprimer</button>        
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="checkbox" id='{{unUser.id}}' name="{{unUser.id}}">
+                </th>
+            </tr>
+        {% endfor %}  
+        </tbody>
+    </table>      
+    
+        <div class="modal fade" id="modal_supprimer" tabindex="-1" data-bs-keyboard="true" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
+            <div class="modal-dialog" >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle"> Modification de la série </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <p>Êtes-vous sur de vouloir supprimer cette série ?</p>
+                        </div>     
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon">Non</button>
+                        <input type="hidden" class="btn btn-danger delete"  id="modalSaison" value="Oui">
+                        <input type="hidden" class="btn btn-danger delete"  id="modalSaisons" value="Oui">           
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+<div class="modal fade" id="modal_modifier" tabindex="-1" data-bs-keyboard="true" 
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"> Modification de la série </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    {{form_start(formUser)}}
+                    <p>Login: {{form_widget(formUser.nom)}}</p>
+                    <p>Mot de passe: {{form_widget(formUser.password)}}</p>
+                    <p>Saisir à nouveau le mot de passe: <input type="password" id="pass" name="password" required></p>
+                    <p>
+                        <label for="roleAdmin">
+                            Role Admin: <input type="checkbox" id='roleAdmin' name="roleAdmin" > 
+                        </label>
+                        <label for="roleSuperAdmin">
+                            Role Super Admin: <input type="checkbox" id='roleSuperAdmin' name="roleSuperAdmin" > 
+                        </label>
+                    </p>
+                    {{form_widget(formUser.reset)}}
+                    <input id="ID" name="ID" type="hidden">
+                </div>                
+            </div>
+            <div class="modal-footer">
+                {{form_widget(formUser.Valider)}}
+                <a type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon" >Non</a>
+                {{form_end(formUser)}}              
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+    
+   $('#checkall').change(function () {
+        if($( this ).prop( "checked" )){$('input:checkbox').attr('checked','checked');} 
+        else $('input:checkbox').removeAttr('checked');
+    }); 
+    
+    function modifier(nom,id){
+        
+        if(id!=null){
+            document.getElementById('user_form_nom').setAttribute('value', nom);
+            document.getElementById('ID').setAttribute('value',id);
+            document.getElementById('exampleModalLongTitle').innerHTML="Modification de l'utilisateur "            
+        }
+        else{
+            document.getElementById('user_form_nom').setAttribute('value','');
+            document.getElementById('ID').setAttribute('value','');
+            document.getElementById('exampleModalLongTitle').innerHTML="Ajouter un utilisateur"        
+        }
+        
+    }
+
+    function supprimer(Id){
+        if(Id==null){
+            document.getElementById('modalSaisons').type='submit';
+            document.getElementById('modalSaison').type='hidden';
+            document.getElementById('form').action='/supprimer_users';
+        }
+        else{
+            document.getElementById('modalSaison').type='submit';
+            document.getElementById('modalSaisons').type='hidden';
+            document.getElementById('form').action='/supprimer_user/'+Id;
+        }
+    }
+
+</script>
+{% endblock %}

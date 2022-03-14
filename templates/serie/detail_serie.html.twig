@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Information série{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em ;  font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    
+</style>
+
+<div class="example-wrapper">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="/photo/{{ serie.affiche }}" alt="Affiche" width="500" height="705">
+        </div>
+        <div class="col-md-6">
+            <p>
+                <button class="btn btn-primary" type="button"   name="bA" id="bA" data-bs-toggle="modal" data-bs-target="#modal_BandeAnnonce"> 
+                    Bande annonce
+                </button>
+            </p>
+            <p>Nom: {{serie.nom}}</p>
+            <p>Première diffusion le  {{serie.dateDiff|date("d/m/Y")}}</p>
+            <p>Résumé: {{serie.resume}}</p>
+            <p>Acteur: </br>
+                {% for unPersonnage in serie.personnages %}
+                    {{unPersonnage.acteur.prenom}} {{unPersonnage.acteur.nom}}: {{unPersonnage.nom}}</br>
+                {% endfor %}
+            </p>
+            
+            <p> 
+                {% for uneSaison in serie.saisons %}
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                        href="#collapseSaison{{uneSaison.numero}}" aria-expanded="false" 
+                        aria-controls="collapseSaison{{uneSaison.numero}}"> Saison {{uneSaison.numero}}</button>
+                {% endfor %}
+            </p>
+            <div class="accordion" id="accSaison">
+                {% for uneSaison in serie.saisons %}
+                    <div class="collapse" id="collapseSaison{{uneSaison.numero}}" data-bs-parent="#accSaison">
+                            {% set num = 1 %}
+                            {% for unEpisode in uneSaison.episodes %}
+                                
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapseEpisode{{unEpisode.id}}" 
+                                    aria-expanded="true" aria-controls="collapseEpisode{{unEpisode.id}}"> 
+                                    Episode {{num}}</button>
+                                    {% set num = num + 1 %}
+                            {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    </br>
+    <div class="row"> 
+        <div class="accordion" id="accEp">
+            {% for uneSaison in serie.saisons %}  
+                    {% for unEpisode in uneSaison.episodes %}
+                        <div class="collapse" id="collapseEpisode{{unEpisode.id}}" data-bs-parent="#accEp">
+                            <div class="card card-body">
+                                <p>Titre: {{unEpisode.nom}}</p>
+                                <p>Episode diffusé le {{unEpisode.datePremDiff|date("d/m/Y")}}</p>
+                                <p>Résumé: </p>
+                                <p>{{unEpisode.resume}}</p>
+                            </div>
+                        </div>     
+                    {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="modal fade" id="modal_BandeAnnonce" tabindex="-1" data-bs-keyboard="true" 
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >  
+        <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle"> Bande d'annonce</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="height:630px">
+                       
+                            {% if youtube=='https://youtu' %}
+                                <iframe width="100%" height="100%" src="{{url}}" 
+                                    title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; 
+                                    clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                                </iframe>
+                            {% else %}
+                                <p>La bande annonce est introuvable</p>
+                            {% endif %} 
+                                      
+                    </div>
+                </div>
+           
+        </div>
+    </div>
+</div>
+{% endblock %}

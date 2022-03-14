@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper {  font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <a class="page-link"  onclick='pager()' id="page_1">Page 1</a>
+    <button type="button" class="btn btn-success"  name="ajout" id="ajout">Ajouter un épisode</button>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th style="text-align: center; vertical-align: middle; " >Nom</th>
+                <th style="text-align: center; vertical-align: middle;">Date de diffusion </th>
+                    
+                <th style="text-align: center; vertical-align: middle;">Serie </th>
+          
+                <th style="text-align: center; vertical-align: middle;">Saison</th>
+                   
+            </tr>
+            <tr>
+                    
+                <th style="text-align: center; vertical-align: middle; " >
+                    <input type="text" id="titre" name="titre">
+                </th>
+                <th style="text-align: center; vertical-align: middle; " >
+                        <input type="date" id="dateStart" name="dateStart">
+                        <input type="date" id="dateEnd" name="dateEnd">
+                </th>
+                <th style="text-align: center; vertical-align: middle; " >
+                    <select id="ep" class="form-select">
+                        <option value="vide">Vieullez sélectionner une série</option>
+                        {% for uneSerie in series %}
+                            <option value="{{uneSerie.id}}">{{uneSerie.nom}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                    
+            </tr>
+        </thead>
+        <tbody id='episodes'>
+                
+              
+        </tbody>
+    </table>
+    
+    <ul class="pagination justify-content-center" >
+        <nav>
+            <ul class="pagination" id="pages">
+               
+            </ul>
+        </nav>
+    </ul>
+</nav>
+</div>
+
+{% endblock %}
+{% block javascripts %}
+<script src="/Javascript/gestion.js"></script>
+<script>
+
+$(document).ready(function(){
+    $.ajax({
+        url: "menuJSON",
+        context: document.body,
+        dataType:'json',
+        
+        
+        success: function(element){
+            
+            episodes=element
+            document.getElementById('ep').children[0].setAttribute('selected','selected')
+            document.getElementById('titre').value=""
+            window.nom=""
+            document.getElementById('dateStart').value=""
+            window.date="" 
+            window.GlobalTarget="vide"
+            
+            modif(0,10)
+            
+            
+
+        }
+    })
+    
+})
+</script>
+{% endblock %}

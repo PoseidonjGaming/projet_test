@@ -1,0 +1,269 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Acteurs{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper {font: 18px/1.5 sans-serif; background-color: #F5F5F5;}
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+    <form  method="get" id="form">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th style="text-align: center; vertical-align: middle; " >Prénom</th>
+                    <th style="text-align: center; vertical-align: middle;">Nom</th>
+                    <th style="text-align: center; vertical-align: middle;" >
+                        <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
+                        onclick="modifier()"> 
+                            Ajouter un acteur
+                        </button>
+                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer tous les acteurs</button>
+                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
+                        onclick="exporter()"> 
+                            Exporter un acteur
+                        </button>
+                        <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_acteurs_add"> 
+                            Ajouter plusieurs acteur
+                        </button>
+                    </th>
+                    <th style="text-align: center; vertical-align: middle;" width="150px">
+                        &nbsp;
+                        <label for="checkall">
+                            <input type="checkbox" id='checkall' name="checkall" > Tout cocher
+                        </label>      
+                    </th>
+                </tr>
+            </thead>
+            <tbody>  
+            {% for unActeur in acteurs %}
+                <tr>
+                    <td style="text-align: center; vertical-align: middle;">{{unActeur.prenom}}</td>
+                    <td style="text-align: center; vertical-align: middle;"> {{unActeur.nom}}</td> 
+                    <td style="text-align: center; vertical-align: middle;">
+                        <button type="button" class="btn btn-warning"  name="{{unActeur.id}}" id="{{unActeur.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
+                        onclick="modifier('{{unActeur.id}}','{{unActeur.nom}}','{{unActeur.prenom}}')"> 
+                            Modifier
+                        </button>
+                        <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unActeur.id}}')">Supprimer</button>
+                        <a type="button" class="btn btn-primary" href="{{path('gerer_personnage',{'id': unActeur.id})}}">Gerer les personnages</a>
+                    </td>
+                    <td style="text-align: center; vertical-align: middle;">
+                        <input type="checkbox" id='{{unActeur.id}}' name="{{unActeur.id}}">
+                    </td>
+                </tr>
+            {% endfor %}   
+            </tbody>
+        </table>
+        <div class="modal fade" id="modal_supprimer" tabindex="-1" data-bs-keyboard="true" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
+            <div class="modal-dialog" >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="supModalLongTitle"> Suppression de la série </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <p id="pModalAutre">Êtes-vous sur de vouloir supprimer cet acteur ?</p>
+                        </div>     
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon">Non</button>
+                        
+                        <input type="submit" class="btn btn-danger delete"  id="submitAutre" value="Oui">            
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </form>
+</div>
+
+
+<div class="modal fade" id="modal_modifier" tabindex="-1" data-bs-keyboard="true" 
+aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"> Modification de l'acteur </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    {{form_start(formActeur)}}
+                        <p>Prénom: {{form_widget(formActeur.prenom)}}</p>
+                        <p>Nom: {{form_widget(formActeur.nom)}}</p>
+                        <input id="ID" name="ID" type="hidden"> 
+                        {{form_widget(formActeur.reset)}}      
+                </div>                
+            </div>
+            <div class="modal-footer">
+                {{form_widget(formActeur.Valider)}}
+                <a type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon" >Non</a>
+            {{form_end(formActeur)}}             
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal_acteurs_add" tabindex="-1" data-bs-keyboard="true" 
+    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >  
+        <div class="modal-dialog modal-fullscreen" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle"> Ajout de plusieurs acteurs </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="ajout/acteurs" enctype="multipart/form-data">
+                        <table class="table table-striped table-hover table-bordered" >
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="text-align: center; vertical-align: middle; width:50%" >Prénom</th>
+                                    <th style="text-align: center; vertical-align: middle;">Nom</th>
+                                </tr>
+                            </thead>
+                            <tbody id="acteurS">
+                                <tr>
+                                    <th style="text-align: center; vertical-align: middle;" colspan="7"> 
+                                        <button type="button" class="btn btn-success"  name="addS" id="addS"> 
+                                            Ajouter un acteur
+                                        </button>
+                                        <button type="button" class="btn btn-danger"  name="supS" id="supS"> 
+                                            Retirer un acteur
+                                        </button>
+                                        <input class="btn btn-primary" type="submit" id="submit" name="submit" value="Valider">
+                                    </th>
+                                </tr>
+                                <input type="hidden" id="maxActeur" name="maxActeur" value="1">
+                                <tr id="row_0">
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="text" id="inputNom_0" name="inputNom_0">
+                                    </th>
+                                    <th style="text-align: center; vertical-align: middle;">
+                                        <input type="text" id="inputPrenom_0" name="inputPrenom_0">
+                                    </th> 
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon" >Non</button>             
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+    
+    $('#checkall').change(function () {
+        if($( this ).prop( "checked" )){$('input:checkbox').attr('checked','checked');} 
+        else $('input:checkbox').removeAttr('checked');
+    }); 
+
+    function modifier(id, nom, prenom){
+        
+        if(id!=null){
+            document.getElementById('acteur_form_nom').setAttribute('value', nom);
+            document.getElementById('acteur_form_prenom').setAttribute('value', prenom);
+            document.getElementById('ID').setAttribute('value',id);
+            document.getElementById('exampleModalLongTitle').innerHTML="Modification de l'acteur "
+                      
+        }
+        else{
+            document.getElementById('acteur_form_nom').setAttribute('value', '');
+            document.getElementById('acteur_form_prenom').setAttribute('value', '');
+            document.getElementById('ID').setAttribute('value','');  
+            document.getElementById('exampleModalLongTitle').innerHTML="Ajouter un acteur"     
+        }
+        
+    }
+   
+
+    function supprimer(Id){
+        if(Id==null){
+            
+            document.getElementById('form').action='/supprimer_acteurs';
+        }
+        else{
+          
+            document.getElementById('form').action='/supprimer_acteur/'+Id;
+        }
+    }
+    function exporter(Id,fic){
+        document.getElementById('pModalAutre').innerHTML="Exporter ces acteurs";
+        document.getElementById('supModalLongTitle').innerHTML="Exportation"
+        document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
+        if(fic==null){
+            
+            document.getElementById('form').action='/export_acteur/1';
+            
+        }
+        else{
+           
+            document.getElementById('form').action='/export_acteur/'+Id;
+        }
+        
+    }
+
+    $('#addS').click(function(){
+     
+        
+        inputMax=document.getElementById('maxActeur')
+        nbActeur=parseInt(inputMax.getAttribute('value'))
+        inputMax.setAttribute('value',nbActeur+1)
+        balise=document.getElementById('acteurS')
+        row=document.createElement('tr')
+        
+
+        row.setAttribute('id',"row_"+nbActeur)
+        
+        colPrenom=document.createElement('th')
+        colPrenom.style="text-align: center; vertical-align: middle;"
+        
+        inputPrenom=document.createElement('input')
+        inputPrenom.type="text"
+        inputPrenom.setAttribute('id',"inputPrenom_"+nbActeur)
+        inputPrenom.setAttribute('name',"inputPrenom_"+nbActeur)
+
+        colPrenom.appendChild(inputPrenom)
+
+        colNom=document.createElement('th')
+        colNom.style="text-align: center; vertical-align: middle;"
+        
+        inputNom=document.createElement('input')
+        inputNom.type="text"
+        inputNom.setAttribute('id',"inputNom_"+nbActeur)
+        inputNom.setAttribute('name',"inputNom_"+nbActeur)
+        
+        colNom.appendChild(inputNom)
+
+        
+
+        row.appendChild(colPrenom)
+        row.appendChild(colNom)
+        
+      
+        balise.appendChild(row)
+    });
+    $('#supS').click(function(){
+
+        maxActeur=document.getElementById('maxActeur')
+        maxActeurInt=parseInt(maxActeur.getAttribute('value'))
+        maxActeurInt=maxActeurInt-1
+        baliseRow=document.getElementById('row_'+maxActeurInt.toString())
+        
+       
+       
+        if(baliseRow.getAttribute('id')!='row_0'){
+            baliseRow.remove()
+            maxActeur.setAttribute('value',maxActeurInt)
+        }
+    })
+</script>
+{% endblock %}
