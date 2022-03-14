@@ -54,19 +54,26 @@ function pager(liste){
     buttonPrev.setAttribute('class',"page-link")
     buttonPrev.setAttribute('id',"prev")
     buttonPrev.type="button"
-    buttonPrev.setAttribute('onclick','modif(0,10)')
+    buttonPrev.setAttribute('onclick','modif(0,10,1)')
     buttonPrev.innerHTML="&laquo;&nbsp;Previous"
     prev.appendChild(buttonPrev)
     pages.appendChild(prev)
     
-    
+    o=0
     for(i=0; i<=nbPage;i++){
-        
+        o=i
         page=document.createElement('li')
-        page.setAttribute('class',"page-item")
+        
+        if(i==0){
+            page.setAttribute('class',"page-item active")
+        }
+        else{
+            page.setAttribute('class',"page-item")
+        }
         buttonPage=document.createElement('span')
         buttonPage.setAttribute('class',"page-link")
-        buttonPage.setAttribute('onclick','modif('+min+','+max+')')
+       
+        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+')')
         buttonPage.innerHTML=i+1
         page.appendChild(buttonPage)
         pages.appendChild(page)
@@ -82,7 +89,7 @@ function pager(liste){
     buttonNext.setAttribute('class',"page-link")
     buttonNext.setAttribute('id',"next")
     buttonNext.type="button"
-    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+')')
+    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+')')
     buttonNext.innerHTML="Next&nbsp;&raquo;"
 
     next.appendChild(buttonNext)
@@ -120,6 +127,8 @@ function filtre(min,max){
             
             
         addCol(e,row,window.episodesFiltre,min,max)
+        //console.log(row)
+        //if(row.children)
             
         window.tbody.appendChild(row)  
     })
@@ -130,13 +139,18 @@ function filtre(min,max){
         
 }
 
-function modif(min,max){
+function modif(min,max,link){
     filtre(min,max)
     
+    Array.from(document.getElementById("pages").children).forEach(function(e){
+       
+        e.setAttribute('class','page-item')
+    })
+    document.getElementById("pages").children[link].setAttribute('class','page-item active')
     
     if(min!=0 && max!=10){
         document.getElementById("prev").parentElement.setAttribute('class','page-item')
-        document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+")")
+        document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+")")
     }
     else{
         document.getElementById("prev").parentElement.setAttribute('class','page-item disabled')
@@ -146,7 +160,7 @@ function modif(min,max){
     }
     else{
         document.getElementById("next").parentElement.setAttribute('class','page-item')
-        document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+")")
+        document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+")")
     }
     
     
@@ -174,14 +188,18 @@ function trie(col, reverse){
             }
         })
     })
-    modif(0,10)
+    modif(0,10,1)
 }
 $('#ep').change(function(e){
     target=e.target.value
     window.GlobalTarget=target
-    
+    window.episodes.forEach(function(e){
+        if(verif(e)){
+            window.episodesFiltre.push(e)
+        }
+    })
    
-    modif(0,10)
+    modif(0,10,1)
     
     
      
@@ -203,10 +221,12 @@ $('#titre').keyup(function(e){
     
     window.episodesFiltre=[]
     window.episodes.forEach(function(e){
-        verif(e,window.episodesFiltre)
+        if(verif(e)){
+            window.episodesFiltre.push(e)
+        }
     })
     
-    modif(0,10)
+    modif(0,10,1)
     
     
 
@@ -218,9 +238,11 @@ $('#dateStart').change(function(e){
     window.date=subDate[2]+'/'+subDate[1]+'/'+subDate[0]
     
     window.episodes.forEach(function(e){
-        verif(e,window.episodesFiltre)
+        if(verif(e)){
+            window.episodesFiltre.push(e)
+        }
     })
-    modif(0,10)
+    modif(0,10,1)
     
     
     
@@ -231,13 +253,23 @@ $('#dateStart').change(function(e){
 $('#sort_nom').click(function(){
     //console.log(this.innerHTML)
     
-    if(this.innerHTML=="A...Z"){
+    if(this.innerHTML=="Default"){
         trie('nom',false)
+        this.innerHTML="A...Z"
+    }
+    else if(this.innerHTML=="A...Z"){
+        trie('nom',true)
         this.innerHTML="Z...A"
     }
     else{
-        trie('nom',true)
-        this.innerHTML="A...Z"
+        window.episodesFiltre=[]
+        window.episodes.forEach(function(e){
+            if(verif(e)){
+                window.episodesFiltre.push(e)
+            }
+        })
+        modif(0,10,1)
+        this.innerHTML="Default"
     }
     
 })
