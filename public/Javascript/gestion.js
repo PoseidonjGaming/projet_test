@@ -64,7 +64,13 @@ function pager(liste){
     for(i=0; i<=nbPage;i++){
         o=i
         page=document.createElement('li')
-        page.setAttribute('class',"page-item")
+        
+        if(i==0){
+            page.setAttribute('class',"page-item active")
+        }
+        else{
+            page.setAttribute('class',"page-item")
+        }
         buttonPage=document.createElement('span')
         buttonPage.setAttribute('class',"page-link")
         buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+",window.episodes"+')')
