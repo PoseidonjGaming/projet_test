@@ -146,7 +146,7 @@ class Aide extends AbstractController{
         $repSaison=$this->getDoctrine()->getRepository(Saison::class);
         $entityManager = $this->getDoctrine()->getManager();
                
-        $
+        
 
         $reader = new Ods(); 
         $reader->setReadDataOnly(TRUE);

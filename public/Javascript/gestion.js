@@ -1,9 +1,10 @@
 episodes=[]
 episodesFiltre=[]
 GlobalTarget=""
-date=""
+dateStart=""
+dateEnd=""
 nom=""
-tbody=document.getElementById('episodes')
+
 
 function deleteRow(){
     Array.from(document.getElementById('episodes').children).forEach(function(e){
@@ -54,7 +55,7 @@ function pager(liste){
     buttonPrev.setAttribute('class',"page-link")
     buttonPrev.setAttribute('id',"prev")
     buttonPrev.type="button"
-    buttonPrev.setAttribute('onclick','modif(0,10,1)')
+    buttonPrev.setAttribute('onclick','modif(0,10,1,window.episodes)')
     buttonPrev.innerHTML="&laquo;&nbsp;Previous"
     prev.appendChild(buttonPrev)
     pages.appendChild(prev)
@@ -66,7 +67,7 @@ function pager(liste){
         page.setAttribute('class',"page-item")
         buttonPage=document.createElement('span')
         buttonPage.setAttribute('class',"page-link")
-        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+')')
+        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+",window.episodes"+')')
         buttonPage.innerHTML=i+1
         page.appendChild(buttonPage)
         pages.appendChild(page)
@@ -82,31 +83,14 @@ function pager(liste){
     buttonNext.setAttribute('class',"page-link")
     buttonNext.setAttribute('id',"next")
     buttonNext.type="button"
-    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+')')
+    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+",window.episodes"+')')
     buttonNext.innerHTML="Next&nbsp;&raquo;"
 
     next.appendChild(buttonNext)
     pages.appendChild(next)
     
 }
-function verif(e){
-    bool=true
-    
-    if(window.nom!=""){
-       bool=bool && e['nom'].includes(window.nom)
-    }
-    if(window.GlobalTarget!="vide"){
-       
-       bool=bool && e['serieId']==window.GlobalTarget
-    }
-    /*if(window.date!==""){
-       bool=bool && e['date']==window.date
-    }*/
-    
-    return bool
-    
-    
-}
+
 
 function filtre(min,max){
     
@@ -120,8 +104,11 @@ function filtre(min,max){
             
             
         addCol(e,row,window.episodesFiltre,min,max)
-            
-        window.tbody.appendChild(row)  
+       
+        if(row.children['length']!=0){
+            window.tbody.appendChild(row)
+        }
+          
     })
     
     pager(window.episodesFiltre)
@@ -130,7 +117,14 @@ function filtre(min,max){
         
 }
 
-function modif(min,max,link){
+function modif(min,max,link,liste){
+    temp=liste
+    window.episodesFiltre=[]
+    temp.forEach(function(e){
+        if(verif(e)){
+            window.episodesFiltre.push(e)
+        }
+    })
     filtre(min,max)
     Array.from(document.getElementById('pages').children).forEach(function(e){
         e.setAttribute("class","page-item")
@@ -139,7 +133,7 @@ function modif(min,max,link){
     
     if(min!=0 && max!=10){
         document.getElementById("prev").parentElement.setAttribute('class','page-item')
-        document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+")")
+        document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+",window.episodes"+")")
     }
     else{
         document.getElementById("prev").parentElement.setAttribute('class','page-item disabled')
@@ -149,7 +143,7 @@ function modif(min,max,link){
     }
     else{
         document.getElementById("next").parentElement.setAttribute('class','page-item')
-        document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+")")
+        document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+",window.episodes"+")")
     }
     
     
@@ -168,96 +162,16 @@ function trie(col, reverse){
     if(reverse){
         sortListe.reverse()
     }
-    
+    console.log(window.episodesFiltre)
     sortListe.forEach(function(nom){
-        
         tempListe.forEach(function(e){
-            if(e[col]==nom){
+            if(e[col]==nom && !window.episodesFiltre.includes(e)){
                 window.episodesFiltre.push(e)
             }
         })
     })
-    modif(0,10,1)
+    console.log(window.episodesFiltre)
+    modif(0,10,1,window.episodesFiltre)
 }
-$('#ep').change(function(e){
-    target=e.target.value
-    window.GlobalTarget=target
-    window.episodesFiltre=[]
-    window.episodes.forEach(function(e){
-        if(verif(e)){
-            window.episodesFiltre.push(e)
-        }
-    })
-   
-    modif(0,10,1)
-    
-    
-     
-})
-$('#ajout').click(function(){
-    console.log(document.getElementById('ajout'))
-    a=document.createElement('a')
-    a.setAttribute('class','btn btn-primary')
-    a.href="test?input1=test"
-    a.innerHTML="test"
-    document.getElementById('ajout').appendChild(a)
-    
-})
-$('#titre').keyup(function(e){
-    
-    target=e.target.value
-   
-    window.nom=target
-    
-    window.episodesFiltre=[]
-    window.episodes.forEach(function(e){
-        if(verif(e)){
-            window.episodesFiltre.push(e)
-        }
-    })
-    
-    modif(0,10,1)
-    
-    
 
-})
-$('#dateStart').change(function(e){
-    
-    target=e.target.value
-    subDate=target.split('-')
-    window.date=subDate[2]+'/'+subDate[1]+'/'+subDate[0]
-    
-    window.episodes.forEach(function(e){
-        verif(e,window.episodesFiltre)
-    })
-    modif(0,10,1)
-    
-    
-    
-    
-
-})
-
-$('#sort_nom').click(function(){
-   
-    
-    if(this.innerHTML=="Default"){
-        trie('nom',false)
-        this.innerHTML="A...Z"
-    }
-    else if(this.innerHTML=="A...Z"){
-        trie('nom',true)
-        this.innerHTML="Z...A"
-    }
-    else{
-        window.episodesFiltre=[]
-        window.episodes.forEach(function(e){
-            if(verif(e)){
-                window.episodesFiltre.push(e)
-            }
-        })
-        modif(0,10,1)
-    }
-    
-})
 

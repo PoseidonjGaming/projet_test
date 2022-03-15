@@ -292,20 +292,11 @@ class SerieController extends AbstractController
     {
         
        
-        $series = $this->getDoctrine()->getRepository(Serie::class)->findAll();
+        $episodes = $this->getDoctrine()->getRepository(Episode::class)->findAll();
         
         $data = [];
-        foreach($series as $uneSerie){
-            foreach ($uneSerie->getSaisons() as $uneSaison ){
-                foreach($uneSaison->getEpisodes() as $unEpisode){
-                    $data[] = [
-                        'serieId'=>$unEpisode->getSaison()->getSerie()->getId(),
-                        'nom'=>$unEpisode->getNom(),
-                        'date'=>$unEpisode->getDatePremDiff(),
-                        'serieNom'=>$unEpisode->getSaison()->getSerie()->getNom()
-                    ];
-                }
-            }
+        foreach($episodes as $unEpisode){
+            $data[]=$unEpisode->dataJson();
         }
        
         

@@ -93,5 +93,14 @@ class Episode
         return $this;
     }
 
-    
+    public function dataJson(){
+        $data=[
+            'serieId'=>$this->getSaison()->getSerie()->getId(),
+            'nom'=>$this->getNom(),
+            'date'=>$this->getDatePremDiff(),
+            'serieNom'=>$this->getSaison()->getSerie()->getNom(),
+            'saison'=>$this->getSaison()->getNumero()
+        ];
+        return $data;
+    }
 }

@@ -48,34 +48,7 @@ class HomeController extends AbstractController
         return $this->redirectToRoute('serie');
     }
 
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/carrefour/{tab}", name="carrefour")
-     */
-    public function carrefour($tab,Aide $aide): Response
-    {
-        $array_nom=explode(",", $tab);
-        foreach($array_nom as $fic){
-            if($fic=='serie.ods'){
-                $aide->import_serie();
-            }
-            elseif($fic=='episode.ods'){
-                $aide->import_episode();
-            }
-            elseif($fic=='acteur.ods'){
-                $aide->import_acteur();
-            }
-            elseif($fic=='personnage.ods'){
-                $aide->import_personnage();
-            }
-            else{
-                return $this->redirectToRoute('serie');
-                
-            }
-        }
-        
-        
-    }
+   
 
     /**
      * @IsGranted("ROLE_admin")
@@ -83,9 +56,6 @@ class HomeController extends AbstractController
      */
     public function import(Aide $aide): Response
     {
-        
-        $tab="";
-        dump($_FILES);
         
         if($_FILES['fichierSerie']['tmp_name'][0]!=""){
             $i=0;
@@ -97,48 +67,30 @@ class HomeController extends AbstractController
                 }
                 else{
                     copy($_FILES['fichierSerie']['tmp_name'][$i],$this->getParameter('photo_directory').'/import//'.'serie.ods');
-                    
-                    $tab='serie.ods';
                 }
                 
                 $i++;
                 
             }
-            
+            $aide->import_serie();
            
         }
         if($_FILES['fichierEpisode']['tmp_name']!=''){
            
             copy($_FILES['fichierEpisode']['tmp_name'],$this->getParameter('photo_directory').'/import//'.'episode.ods');
-            if($tab==""){
-                $tab='episode.ods';
-            }
-            else{
-             $tab=$tab.',episode.ods';
-            }
+            $aide->import_episode();
         } 
         if($_FILES['fichierActeur']['tmp_name']!=""){
         
             copy($_FILES['fichierActeur']['tmp_name'],$this->getParameter('photo_directory').'/import//'.'acteur.ods');
-            if($tab==""){
-                $tab='acteur.ods';
-            }
-            else{
-                $tab=$tab.',acteur.ods';
-            }
+            $aide->import_acteur();
             
             
         }
         if($_FILES['fichierPersonnage']['tmp_name']!=""){
         
             copy($_FILES['fichierPersonnage']['tmp_name'],$this->getParameter('photo_directory').'/import//'.'personnage.ods');
-            if($tab==""){
-                $tab='personnage.ods';
-            }
-            else{
-                $tab=$tab.',personnage.ods';
-            }
-            
+            $aide->import_personnage();
             
         }
         
@@ -148,7 +100,7 @@ class HomeController extends AbstractController
           
         ]);*/
         
-        return $this->redirectToRoute('carrefour',array('tab' => $tab));
+        return $this->redirectToRoute('serie');
         
     }
 

@@ -15,8 +15,8 @@
         <thead class="table-dark">
             <tr>
                 <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
-                <th style="text-align: center; vertical-align: middle;">Date de diffusion </th> 
-                <th style="text-align: center; vertical-align: middle;">Serie </th>
+                <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th> 
+                <th style="text-align: center; vertical-align: middle;">Serie <a class="link-primary" id="sort_date">Default</a></th>
                 <th style="text-align: center; vertical-align: middle;">Saison</th>
                    
             </tr>
@@ -60,37 +60,165 @@
 {% block javascripts %}
 <script src="/Javascript/gestion.js"></script>
 <script>
-
-$(document).ready(function(){
-    $.ajax({
-        url: "menuJSON",
-        context: document.body,
-        dataType:'json',
+    tbody=document.getElementById('episodes')
+    function verif(e){
+        bool=true
         
-        
-        success: function(element){
-            
-            window.episodes=element
-            document.getElementById('ep').children[0].setAttribute('selected','selected')
-            document.getElementById('titre').value=""
-            window.nom=""
-            document.getElementById('dateStart').value=""
-            window.date="" 
-            window.GlobalTarget="vide"
-            window.episodesFiltre=[]
-            window.episodes.forEach(function(e){
-                
-                if(verif(e)){
-                    window.episodesFiltre.push(e)
-                }
-            })
-            modif(0,10,1)
-            
-            
-
+        if(window.nom!=""){
+        bool=bool && e['nom'].includes(window.nom)
         }
-    })
+        if(window.GlobalTarget!="vide"){
+        
+        bool=bool && e['serieId']==window.GlobalTarget
+        }
+        
+       
+        if(window.dateStart!=="" && window.dateEnd!==''){
+            temp=new Date(e['date']['date'])
+            bool=bool && temp.getTime()>window.dateStart.getTime() && temp.getTime()<window.dateEnd.getTime()
+            
+            
+        }
     
-})
+        return bool
+        
+        
+    }
+
+    $(document).ready(function(){
+        $.ajax({
+            url: "menuJSON",
+            context: document.body,
+            dataType:'json',
+            
+            
+            success: function(element){
+                
+                window.episodes=element
+                document.getElementById('ep').children[0].setAttribute('selected','selected')
+                document.getElementById('titre').value=""
+                window.nom=""
+                document.getElementById('dateStart').value=""
+                document.getElementById('dateEnd').value=""
+                window.dateStart=""
+                window.dateEnd="" 
+                window.GlobalTarget="vide"
+                window.episodesFiltre=[]
+                trie('serieId',false)            
+                
+            }
+        })
+   
+    
+    })
+
+    $('#ep').change(function(e){
+        target=e.target.value
+        window.GlobalTarget=target
+       
+    
+    
+        modif(0,10,1,window.episodes)
+        
+        
+     
+    })
+
+    $('#ajout').click(function(){
+        console.log(document.getElementById('ajout'))
+        a=document.createElement('a')
+        a.setAttribute('class','btn btn-primary')
+        a.href="test?input1=test"
+        a.innerHTML="test"
+        document.getElementById('ajout').appendChild(a)
+        
+    })
+
+    $('#titre').keyup(function(e){
+        
+        target=e.target.value
+    
+        window.nom=target
+        
+    
+        
+        
+        modif(0,10,1,window.episodes)
+        
+        
+
+    })
+
+    $('#dateStart').change(function(e){
+        
+        target=e.target.value
+        date=new Date(target)
+        window.dateStart=date
+        /*subDate=target.split('-')
+        window.date=subDate[2]+'/'+subDate[1]+'/'+subDate[0]*/
+        
+        //console.log(date)
+    
+        modif(0,10,1,window.episodes)
+        
+        
+        
+        
+
+    })
+    $('#dateEnd').change(function(e){
+        
+        target=e.target.value
+        date=new Date(target)
+        window.dateEnd=date
+        /*subDate=target.split('-')
+        window.date=subDate[2]+'/'+subDate[1]+'/'+subDate[0]*/
+        
+        //console.log(date)
+    
+        modif(0,10,1,window.episodes)
+        
+        
+        
+        
+
+    })
+
+    $('#sort_nom').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('nom',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('nom',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('serieId',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+    $('#sort_date').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('date',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('date',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('serieId',false)
+            this.innerHTML="Default"
+        }
+        
+    })
 </script>
 {% endblock %}
