@@ -170,10 +170,10 @@ class EpisodeController extends AbstractController
                 $UnEpisode->setResume(str_replace("\r\n"," ",$UnEpisode->getResume()));  
             }
            
-            dump($episodes);
+            dump($ListeEpisodes);
         return $this->render('episode/gerer_episode.html.twig', [
             
-            'episodes'=> $episodes,
+            'episodes'=> $ListeEpisodes,
             'formEpisode'=>$form->createView(),
             'id'=>$id
             

@@ -95,9 +95,10 @@ class Episode
 
     public function dataJson(){
         $data=[
-            'serieId'=>$this->getSaison()->getSerie()->getId(),
+            'id'=>$this->getId(),
             'nom'=>$this->getNom(),
             'date'=>$this->getDatePremDiff(),
+            'serieId'=>$this->getSaison()->getSerie()->getId(),
             'serieNom'=>$this->getSaison()->getSerie()->getNom(),
             'saison'=>$this->getSaison()->getNumero()
         ];

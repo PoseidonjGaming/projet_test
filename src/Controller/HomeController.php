@@ -111,16 +111,16 @@ class HomeController extends AbstractController
     public function export(Aide $aide): Response
     {
         
-        if(isset($_POST['series'])){
+        if(isset($_POST['series']) || (isset($_GET['type'])&&$_GET['type']=='serie')){
            $affiches=$aide->export_serie($_GET);
         }
-        if(isset($_POST['episode'])){
+        if(isset($_POST['episode'])|| (isset($_GET['type'])&&$_GET['type']=='episode')){
            $aide->export_episode($_GET);
         }
-        if(isset($_POST['acteur'])){
+        if(isset($_POST['acteur']) || (isset($_GET['type'])&&$_GET['type']=='acteur')){
            $aide->export_acteur($_GET);
         }
-        if(isset($_POST['personnage'])){
+        if(isset($_POST['personnage'])|| (isset($_GET['type'])&&$_GET['type']=='personnage')){
            $aide->export_personnage($_GET);
         }
         
@@ -182,6 +182,7 @@ class HomeController extends AbstractController
            return $this->redirectToRoute('serie');
             
         }
+        
     }
 
     

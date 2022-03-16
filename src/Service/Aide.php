@@ -314,7 +314,7 @@ class Aide extends AbstractController{
         $entityManager = $this->getDoctrine()->getManager();
                
       
-    
+        $exlude=['checkall',"titre",'dateStart',"dateEnd","saison","episodes","checkExport","type"];
         
         $spread=new SpreadSheet();
         $writer = new Write($spread); 
@@ -323,12 +323,12 @@ class Aide extends AbstractController{
         if($get==[]){
             $series=$repSerie->findAll();
         }
-        elseif($get==[]){
+        elseif($get!=[]){
             $tab=array_keys($get);
             $series=[];
             foreach($tab as $int){
                         
-                if($int != "checkall"){
+                if(!in_array($int,$exlude)){
                     $serie=$entityManager->getRepository(Serie::class)->findUneSerie($int);
                     array_push($series,$serie);
                 }

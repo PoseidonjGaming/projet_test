@@ -188,12 +188,23 @@ class Serie
 
    
     public function dataJson(){
+        $nbEp=0;
+        foreach($this->getSaisons() as $uneSaison){
+            $nbEp+=count($uneSaison->getEpisodes());
+        }
+        $resumeTemp=$this->getResume();
+        
+        
         $data=[
+            'id'=>$this->getId(),
             'nom'=>$this->getNom(),
             'date'=>$this->getDateDiff(),
             'resume'=>$this->getResume(),
             'affiche'=>$this->getAffiche(),
-            'Ba'=>$this->getUrlBa()];
+            'Ba'=>$this->getUrlBa(),
+            'saison'=>count($this->getSaisons()),
+            'episodes'=>$nbEp
+        ];
         return $data;
     }
 

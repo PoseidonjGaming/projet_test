@@ -16,7 +16,7 @@
             <tr>
                 <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
                 <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th> 
-                <th style="text-align: center; vertical-align: middle;">Serie <a class="link-primary" id="sort_date">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;">Serie <a class="link-primary" id="sort_serie">Default</a></th>
                 <th style="text-align: center; vertical-align: middle;">Saison</th>
                    
             </tr>
@@ -37,7 +37,10 @@
                         {% endfor %}
                     </select>
                 </th>
+                <th style="text-align: center; vertical-align: middle;">
                     
+                </th>
+                
             </tr>
         </thead>
         <tbody id='episodes'>
@@ -61,6 +64,10 @@
 <script src="/Javascript/gestion.js"></script>
 <script>
     tbody=document.getElementById('episodes')
+    GlobalTarget=""
+    dateStart=""
+    dateEnd=""
+    nom=""
     function verif(e){
         bool=true
         
@@ -84,17 +91,42 @@
         
         
     }
-
+function filtre(min,max){
+    
+    
+   
+    deleteRow()    
+    window.ListeFitre.forEach(function(e){
+        
+        row=document.createElement('tr')
+        splitDate=e['date'].date.substring(0,10).split('-')
+        temp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
+            
+            
+        addCol(e,row,window.ListeFitre,min,max)
+        window.tbody.appendChild(row)
+      
+        if(row.children['length']>0){
+            
+        }
+        
+    })
+    
+    pager(window.ListeFitre)
+    
+        
+        
+}
     $(document).ready(function(){
         $.ajax({
-            url: "menuJSON",
+            url: "menuJSON?type=episode",
             context: document.body,
             dataType:'json',
             
             
             success: function(element){
                 
-                window.episodes=element
+                window.ListeBase=element
                 document.getElementById('ep').children[0].setAttribute('selected','selected')
                 document.getElementById('titre').value=""
                 window.nom=""
@@ -103,8 +135,9 @@
                 window.dateStart=""
                 window.dateEnd="" 
                 window.GlobalTarget="vide"
-                window.episodesFiltre=[]
-                trie('serieId',false)            
+               
+                window.exception=['id','serieId']
+                trie('id',false)
                 
             }
         })
@@ -115,10 +148,11 @@
     $('#ep').change(function(e){
         target=e.target.value
         window.GlobalTarget=target
+        console.log(target)
        
     
     
-        modif(0,10,1,window.episodes)
+        modif(0,10,1,window.ListeBase)
         
         
      
@@ -143,7 +177,7 @@
     
         
         
-        modif(0,10,1,window.episodes)
+        modif(0,10,1,window.ListeBase)
         
         
 
@@ -159,7 +193,7 @@
         
         //console.log(date)
     
-        modif(0,10,1,window.episodes)
+        modif(0,10,1,window.ListeBase)
         
         
         
@@ -176,7 +210,7 @@
         
         //console.log(date)
     
-        modif(0,10,1,window.episodes)
+        modif(0,10,1,window.ListeBase)
         
         
         
@@ -197,7 +231,7 @@
         }
         else{
                     
-            trie('serieId',false)
+            trie('serieNom',false)
             this.innerHTML="Default"
         }
         
@@ -215,10 +249,33 @@
         }
         else{
                     
-            trie('serieId',false)
+            trie('serieNom',false)
             this.innerHTML="Default"
         }
         
     })
+    $('#sort_serie').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('serieNom',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('serieNom',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('serieNom',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+
+    
+    
+    
+
 </script>
 {% endblock %}

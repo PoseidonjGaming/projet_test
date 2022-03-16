@@ -291,14 +291,25 @@ class SerieController extends AbstractController
     public function menuJSON(): JsonResponse
     {
         
-       
-        $episodes = $this->getDoctrine()->getRepository(Episode::class)->findAll();
+        if($_GET['type']=="episode"){
+            $items=$this->getDoctrine()->getRepository(Episode::class)->findAll();
+        }
+        elseif($_GET['type']=='serie'){
+            $items=$this->getDoctrine()->getRepository(Serie::class)->findAll();
+        }
+        elseif($_GET['type']=='acteur'){
+            $items=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
+        }
+        else{
+            $items=$this->getDoctrine()->getRepository(Personnage::class)->findAll();
+        }
+        
         
         $data = [];
-        foreach($episodes as $unEpisode){
-            $data[]=$unEpisode->dataJson();
+        foreach($items as $unItem){
+            $data[]=$unItem->dataJson();
         }
-       
+        
         
         return new JsonResponse($data, Response::HTTP_OK);
 

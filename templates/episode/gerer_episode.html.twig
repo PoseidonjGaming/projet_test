@@ -45,18 +45,18 @@
                 </tr>
                 <tr>
                     <th style="text-align: center; vertical-align: middle; " >
-                        {#<select id="ep" class="form-select">
-                            {% for uneSerie in series %}
-                                <option value="{{uneSerie.nom}}">{{uneSerie.nom}}</option>
-                        
-                            {% endfor %}
-                        </select>
-                        <button type="button" class="btn btn-warning"  name="test" id="test">test</button>#}
+                       
+                        <button type="button" class="btn btn-warning"  name="test" id="test">test</button>
                     
                     </th>
                     <th style="text-align: center; vertical-align: middle;">Date de diffusion </th>
                     {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">Serie </th>
+                        <th style="text-align: center; vertical-align: middle;"> <select id="ep" class="form-select">
+                            {% for uneSerie in series %}
+                                <option value="{{uneSerie.nom}}">{{uneSerie.nom}}</option>
+                            {% endfor %}
+                        </select>
+                    </th>
                     {% endif %}
                     <th style="text-align: center; vertical-align: middle;">Saison</th>
                    
@@ -455,3 +455,4 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
     })
 </script>
 {% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="CSS/switch.css" type="text/css">{% endblock %}

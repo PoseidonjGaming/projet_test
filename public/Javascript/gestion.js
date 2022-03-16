@@ -1,48 +1,17 @@
-episodes=[]
-episodesFiltre=[]
-GlobalTarget=""
-dateStart=""
-dateEnd=""
-nom=""
-
-
+ListeBase=[]
+ListeFitre=[]
+exception=[]
+tbody=""
+boolExport=""
+listeExport=[]
 function deleteRow(){
-    Array.from(document.getElementById('episodes').children).forEach(function(e){
+    Array.from(window.tbody.children).forEach(function(e){
         e.remove()
     })
 }
-function addCol(val,row,liste,min,max){
-    
-    
-    i=0
-    for(item in val){
-        if(i!=0){
-            newCol=document.createElement('th')
-            newCol.style="text-align: center; vertical-align: middle;"
-            
-            if(typeof(val[item])===typeof(val['date'])){
-                //console.log(val[item])
-                subDate=val[item].date.substring(0,10).split('-')
-                dateTemp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
-                newCol.innerHTML=temp
-            }
-            else{
-                newCol.innerHTML=val[item]
-            }
-            if(liste.indexOf(val)>=min && liste.indexOf(val)<max){
-                row.appendChild(newCol)
-            }
-        }
-        
-        i++
-    }
-    
-    
-}
+
 function pager(liste){
-    Array.from(document.getElementById('pages').children).forEach(function(e){
-        e.remove()
-    })
+   
     
     nbPage=Math.floor(liste.length/10)
     
@@ -55,7 +24,7 @@ function pager(liste){
     buttonPrev.setAttribute('class',"page-link")
     buttonPrev.setAttribute('id',"prev")
     buttonPrev.type="button"
-    buttonPrev.setAttribute('onclick','modif(0,10,1,window.episodes)')
+    buttonPrev.setAttribute('onclick','modif(0,10,1,window.ListeBase)')
     buttonPrev.innerHTML="&laquo;&nbsp;Previous"
     prev.appendChild(buttonPrev)
     pages.appendChild(prev)
@@ -73,7 +42,7 @@ function pager(liste){
         }
         buttonPage=document.createElement('span')
         buttonPage.setAttribute('class',"page-link")
-        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+",window.episodes"+')')
+        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+",window.ListeBase"+')')
         buttonPage.innerHTML=i+1
         page.appendChild(buttonPage)
         pages.appendChild(page)
@@ -89,7 +58,7 @@ function pager(liste){
     buttonNext.setAttribute('class',"page-link")
     buttonNext.setAttribute('id',"next")
     buttonNext.type="button"
-    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+",window.episodes"+')')
+    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+",window.ListeBase"+')')
     buttonNext.innerHTML="Next&nbsp;&raquo;"
 
     next.appendChild(buttonNext)
@@ -98,67 +67,52 @@ function pager(liste){
 }
 
 
-function filtre(min,max){
-    
-    
-    deleteRow()    
-    window.episodesFiltre.forEach(function(e){
-        
-        row=document.createElement('tr')
-        splitDate=e['date'].date.substring(0,10).split('-')
-        temp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
-            
-            
-        addCol(e,row,window.episodesFiltre,min,max)
-       
-        if(row.children['length']!=0){
-            window.tbody.appendChild(row)
-        }
-          
-    })
-    
-    pager(window.episodesFiltre)
-    
-        
-        
-}
+
 
 function modif(min,max,link,liste){
     temp=liste
-    window.episodesFiltre=[]
+    window.ListeFitre=[]
     temp.forEach(function(e){
         if(verif(e)){
-            window.episodesFiltre.push(e)
+            window.ListeFitre.push(e)
         }
     })
-    filtre(min,max)
     Array.from(document.getElementById('pages').children).forEach(function(e){
-        e.setAttribute("class","page-item")
+        e.remove()
     })
-    document.getElementById('pages').children[link].setAttribute('class','page-item active')
     
-    if(min!=0 && max!=10){
-        document.getElementById("prev").parentElement.setAttribute('class','page-item')
-        document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+",window.episodes"+")")
+    filtre(min,max)
+    if(window.boolExport==false){
+        Array.from(document.getElementById('pages').children).forEach(function(e){
+            e.setAttribute("class","page-item")
+        })
+        document.getElementById('pages').children[link].setAttribute('class','page-item active')
+        
+        if(min!=0 && max!=10){
+            document.getElementById("prev").parentElement.setAttribute('class','page-item')
+            document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+",window.ListeBase"+")")
+        }
+        else{
+            document.getElementById("prev").parentElement.setAttribute('class','page-item disabled')
+        }
+        if(max==(10*Math.ceil(window.ListeFitre.length/10))){
+            document.getElementById("next").parentElement.setAttribute('class','page-item disabled')
+        }
+        else{
+            document.getElementById("next").parentElement.setAttribute('class','page-item')
+            document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+",window.ListeBase"+")")
+        }
     }
-    else{
-        document.getElementById("prev").parentElement.setAttribute('class','page-item disabled')
-    }
-    if(max==(10*Math.ceil(window.episodesFiltre.length/10))){
-        document.getElementById("next").parentElement.setAttribute('class','page-item disabled')
-    }
-    else{
-        document.getElementById("next").parentElement.setAttribute('class','page-item')
-        document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+",window.episodes"+")")
-    }
+    
     
     
 }
 function trie(col, reverse){
     sortListe=[]
     tempListe=[]
-    window.episodesFiltre=[]
-    window.episodes.forEach(function(e){
+    window.ListeFitre=[]
+    console.log(window.ListeBase)
+    window.ListeBase.forEach(function(e){
         if(verif(e)){
             tempListe.push(e)
             sortListe.push(e[col])
@@ -168,16 +122,38 @@ function trie(col, reverse){
     if(reverse){
         sortListe.reverse()
     }
-    console.log(window.episodesFiltre)
+    
     sortListe.forEach(function(nom){
         tempListe.forEach(function(e){
-            if(e[col]==nom && !window.episodesFiltre.includes(e)){
-                window.episodesFiltre.push(e)
+            if(e[col]==nom && !window.ListeFitre.includes(e)){
+                window.ListeFitre.push(e)
             }
         })
     })
-    console.log(window.episodesFiltre)
-    modif(0,10,1,window.episodesFiltre)
+    console.log(window.ListeFitre)
+    modif(0,10,1,window.ListeFitre)
 }
 
+function addCol(val,row,liste,min,max){
+    for(item in val){
+        if(!window.exception.includes(item)){
+            newCol=document.createElement('td')
+            newCol.style="text-align: center; vertical-align: middle;"
+                
+            if(typeof(val[item])===typeof(val['date'])){
+                subDate=val[item].date.substring(0,10).split('-')
+                dateTemp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
+                newCol.innerHTML=temp
+            }
+            else{
+                newCol.innerHTML=val[item]
+            }
+            if(liste.indexOf(val)>=min && liste.indexOf(val)<max || window.boolExport){
+                row.appendChild(newCol)
+            }
+        }
+    }
+    
+    
+}
 
