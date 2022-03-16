@@ -311,10 +311,10 @@
     })
 
     $('#checkall').change(function () {
-        rows=document.getElementById('serie')
+       
     
         if(this.checked){
-            Array.from(rows.children).forEach(function(e){
+            Array.from(window.tbody.children).forEach(function(e){
                 e.children[5].children[0].checked=true
                 window.listeExport.push(e.children[5].children[0].getAttribute('id'))
             
@@ -322,10 +322,16 @@
             
         } 
         else{
-            Array.from(rows.children).forEach(function(e){
+           Array.from(window.tbody.children).forEach(function(e){
+               
+
+               
+                if(window.listeExport.includes(e.children[5].children[0].getAttribute('id'))&&e.children[5].children[0].checked){
+                    window.listeExport.splice(window.listeExport.indexOf(e.children[5].children[0].getAttribute('id')),1)
+                    e.children[5].children[0].checked=false
+                }
                 
-                e.children[5].children[0].checked=false
-                window.listeExport=[]
+                
             })
         }
    

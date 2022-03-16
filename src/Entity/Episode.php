@@ -98,6 +98,7 @@ class Episode
             'id'=>$this->getId(),
             'nom'=>$this->getNom(),
             'date'=>$this->getDatePremDiff(),
+            "resume"=>$this->getResume(),
             'serieId'=>$this->getSaison()->getSerie()->getId(),
             'serieNom'=>$this->getSaison()->getSerie()->getNom(),
             'saison'=>$this->getSaison()->getNumero()

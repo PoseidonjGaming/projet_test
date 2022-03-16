@@ -13,25 +13,22 @@
         <table class="table table-striped table-hover table-bordered">
             <thead class="table-dark">
                 <tr>
-                    <th style="text-align: center; vertical-align: middle; " >Nom</th>
-                    <th style="text-align: center; vertical-align: middle;">Date de diffusion</th>
+                    <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
+                    <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th>
                     {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">Serie </th>
+                        <th style="text-align: center; vertical-align: middle;">Serie <a class="link-primary" id="sort_serie">Default</a></th>
                     {% endif %}
-                    <th style="text-align: center; vertical-align: middle;">Saison</th>
+                    <th style="text-align: center; vertical-align: middle;">Saison <a class="link-primary" id="sort_saison">Default</a></th>
                     <th style="text-align: center; vertical-align: middle;" >                         
                         <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
                         onclick="modifier()"> 
                             Ajouter un épisode
                         </button>
-                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer tous les épisodes</button>
+                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer plusieurs épisodes</button>
                         {% if id is defined %}
                             <a class="btn btn-primary" href="{{path('gerer_serie')}}" type="button">Retour</a>
                         {% endif %}
-                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
-                        onclick="exporter()"> 
-                            Exporter un Episode
-                        </button>
+                        
                         <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_episodes_add"> 
                             Ajouter plusieurs épisode
                         </button>
@@ -44,22 +41,40 @@
                     </th>
                 </tr>
                 <tr>
-                    <th style="text-align: center; vertical-align: middle; " >
-                       
-                        <button type="button" class="btn btn-warning"  name="test" id="test">test</button>
+                    <th style="text-align: center; vertical-align: middle;">
+                        <input type="text" id="titre" name="titre">
+                    </th>
                     
+                    <th style="text-align: center; vertical-align: middle;">
+                        <input type="date" id="dateStart" name="dateStart">
+                        <input type="date" id="dateEnd" name="dateEnd">
                     </th>
-                    <th style="text-align: center; vertical-align: middle;">Date de diffusion </th>
                     {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;"> <select id="ep" class="form-select">
-                            {% for uneSerie in series %}
-                                <option value="{{uneSerie.nom}}">{{uneSerie.nom}}</option>
-                            {% endfor %}
-                        </select>
-                    </th>
+                        <th style="text-align: center; vertical-align: middle;"> 
+                            <select id="serieFiltre" class="form-select">
+                            <option value="">Vieullez sélectionner une série</option>
+                                {% for uneSerie in series %}
+                                    <option value="{{uneSerie.id}}">{{uneSerie.nom}}</option>
+                                {% endfor %}
+                            </select>
+                        </th>
                     {% endif %}
-                    <th style="text-align: center; vertical-align: middle;">Saison</th>
-                   
+                    <th style="text-align: center; vertical-align: middle;">
+                        <input type="number" id="saisonFiltre" name="saisonFiltre" min="1">
+                    </th>
+                    
+                    <th style="text-align: center; vertical-align: middle;">
+                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
+                        onclick="exporter()"> 
+                            Exporter un Episode
+                        </button>
+                    </th>
+                    <th style="text-align: center; vertical-align: middle;">
+                        <label class="switch">
+                            <input type="checkbox" id="checkExport" name="checkExport" onclick="modExport()">
+                            <span class="slider round"></span>
+                        </label>
+                    </th>
                     
                 </tr>
             </thead>
@@ -75,7 +90,7 @@
                     <th style="text-align: center; vertical-align: middle;"> {{unEpisode.saison.numero}} </th>                 
                     <th style="text-align: center; vertical-align: middle;">
                         <button type="button" class="btn btn-warning"  name="{{unEpisode.id}}" id="{{unEpisode.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
-                        onclick="modifier('{{unEpisode.id}}','{{unEpisode.nom}}','{{unEpisode.datePremDiff|date("Y-m-d")}}','{{unEpisode.resume}}','{{unEpisode.saison.serie.id}}','{{unEpisode.saison.id}}')"> 
+                        onclick="modifier('{{unEpisode.id}}','{{unEpisode.nom}}','{{unEpisode.datePremDiff|date("Y-m-d")}}','{{unEpisode.resume}}','{{unEpisode.saison.serie.id}}','{{unEpisode.saison.numero}}')"> 
                             Modifier
                         </button>
                         <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unEpisode.id}}')">Supprimer</button>
@@ -102,8 +117,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="modalNon">Non</button>
-                        
-                        <input type="submit" class="btn btn-danger delete"  id="submitAutre" value="Oui">            
+                        <input type="submit" class="btn btn-danger delete"  id="submitAutre" value="Oui">
+                        <input type="hidden" class="btn btn-danger delete"  id="type" name="type" value="episode">         
                     </div>
                 </div>
             </div>
@@ -224,102 +239,92 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         </div>
     </div>
 </div>
-
+<ul class="pagination justify-content-center" >
+    <nav>
+        <ul class="pagination" id="pages">
+               
+        </ul>
+    </nav>
+</ul>
     
 
 {% endblock %}
 
 
 {% block javascripts %}
+<script src="/Javascript/episode.js"></script>
+<script src="/Javascript/gestion.js"></script>
 <script>
-    
-    $('#checkall').change(function () {
-        if($( this ).prop( "checked" )){$('input:checkbox').attr('checked','checked');} 
-        else $('input:checkbox').removeAttr('checked');
-    }); 
+    $(document).ready(function(){   
+        $.ajax({
+            url: "menuJSON?type=episode",
+            context: document.body,
+            dataType:'json',
+            
+            
+            success: function(element){
+                
+                window.ListeBase=element
+                window.exception=['id',"serieId",'resume']
+                
+                document.getElementById('titre').value=""
+                window.nom=""
+                document.getElementById('dateStart').value=""
+                document.getElementById('dateEnd').value=""
+                document.getElementById('saisonFiltre').value=""
+                document.getElementById('serieFiltre').children[0].selected=true
+                document.getElementById('checkExport').checked=false
+                document.getElementById('checkall').disabled=true
+                document.getElementById('checkall').checked=false
 
-    function modifier(id, nom, dateDiff, resume, index, saison){
-        
-        selectBase=document.getElementById('serie')
-        if(id!=null){
-            document.getElementById('episode_form_nom').setAttribute('value', nom);
-            document.getElementById('episode_form_date_prem_diff').setAttribute('value', dateDiff);
-            document.getElementById('episode_form_resume').value= resume;
-            document.getElementById('saison').setAttribute('value',saison);
-            document.getElementById('ID').setAttribute('value',id);
-            document.getElementById('exampleModalLongTitle').innerHTML="Modification de l'épisode"
-            
-            //console.log(listeOptions)
-            
-            
-            
-            if(selectBase!=null){
-                Array.from(selectBase.options).forEach(function(e){
-                    console.log(e)
-                    if(e.getAttribute('id')==index ){
-                       
-                        e.setAttribute("selected",'selected')
-                    }
-                    else if($( this ).prop( "selected" )){
-                       e.removeAttr("selected")
-                    }
-                })
+              
+                window.dateStart=""
+                window.dateEnd="" 
+                window.saison=""
+               
+                
+                
+                
+                window.tbody=document.getElementById('episodes')
+                window.buttonsRow=tbody.children[0].children[4]
+                window.boolExport=false
+                trie('id',false)
                 
             }
-                      
-        }
+        })
+    })
+    
+     $('#checkall').change(function () {
+       
+        if(this.checked){
+            Array.from(window.tbody.children).forEach(function(e){
+                e.children[5].children[0].checked=true
+                window.listeExport.push(e.children[5].children[0].getAttribute('id'))
+            
+            })
+            
+        } 
         else{
             
-            document.getElementById('episode_form_nom').setAttribute('value','');
-            document.getElementById('episode_form_date_prem_diff').setAttribute('value', '');
-            document.getElementById('episode_form_resume').value= '';
-            document.getElementById('ID').setAttribute('value','');
-            document.getElementById('exampleModalLongTitle').innerHTML="Ajout d'un épisode"
-            
-            if(selectBase!=null){
-                Array.from(selectBase.options).forEach(function(e){
-                     if(e.getAttribute('value')=="" ){
-                        e.setAttribute("selected",'selected')
-                    }
-                    else if($( this ).prop( "selected" )){
-                        e.removeAttr("selected")
-                    }
-                })
+            Array.from(window.tbody.children).forEach(function(e){
                
-            }
-            
+
+                
+                if(window.listeExport.includes(e.children[5].children[0].getAttribute('id'))&&e.children[5].children[0].checked){
+                    window.listeExport.splice(window.listeExport.indexOf(e.children[5].children[0].getAttribute('id')),1)
+                    e.children[5].children[0].checked=false
+                }
+                
+                
+            })
             
         }
         
-    }
+        
    
+    });
 
-    function supprimer(Id){
-        if(Id==null){
-         
-            document.getElementById('form').action='/supprimer_episodes';
-        }
-        else{
-          
-            document.getElementById('form').action='/supprimer_episode/'+Id;
-        }
-    }
-
-    function exporter(Id,fic){
-        document.getElementById('pModalAutre').innerHTML="Exporter ces épisodes";
-        document.getElementById('supModalLongTitle').innerHTML="Exportation"
-        document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
-        if(fic==null){
-            
-            document.getElementById('form').action='/export_episode/1';
-            
-        }
-        else{
-           
-            document.getElementById('form').action='/export_episode/'+Id;
-        }
-        
-    }
+    
 
     $('#addS').click(function(){
      
@@ -328,104 +333,52 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         nbEpisode=parseInt(inputMax.getAttribute('value'))
         inputMax.setAttribute('value',nbEpisode+1)
         balise=document.getElementById('episodeS')
-        row=document.createElement('tr')
-        
 
-        row.setAttribute('id',"row_"+nbEpisode)
+       
         
-        colNom=document.createElement('th')
-        colNom.style="text-align: center; vertical-align: middle;"
         
-        inputNom=document.createElement('input')
-        inputNom.type="text"
+        row=document.getElementById('row_0').cloneNode(true)
+        row.setAttribute('id','row_'+nbEpisode)
+
+        colNom=row.children[0]
+        inputNom=colNom.children[0]
         inputNom.setAttribute('id',"inputNom_"+nbEpisode)
         inputNom.setAttribute('name',"inputNom_"+nbEpisode)
 
-        colNom.appendChild(inputNom)
-        row.appendChild(colNom)
-
-        colResume=document.createElement('th')
-        colResume.style="text-align: center; vertical-align: middle;"
+        colResume=row.children[1]
         
-        inputResume=document.createElement('textarea')
-        inputResume.rows=2
-        inputResume.cols=45
+        
+        inputResume=colResume.children[0]
         inputResume.setAttribute('id',"inputResume_"+nbEpisode)
         inputResume.setAttribute('name',"inputResume_"+nbEpisode)
         
-        colResume.appendChild(inputResume)
-        row.appendChild(colResume)
-
-        colDate=document.createElement('th')
-        colDate.style="text-align: center; vertical-align: middle;"
+        colDate=row.children[2]
         
-        inputDate=document.createElement('input')
-        inputDate.type="date"
+        
+        inputDate=colDate.children[0]
+       
         inputDate.setAttribute('id',"inputDate_"+nbEpisode)
         inputDate.setAttribute('name',"inputDate_"+nbEpisode)
         
-        colDate.appendChild(inputDate)
-        row.appendChild(colDate)
-
-        selectBase=document.getElementById('inputSerie_0')
         
-        colSerie=document.createElement('th')
-        colSerie.style="text-align: center; vertical-align: middle;"
-        console.log(selectBase.tagName)
-        if(selectBase.tagName=="SELECT"){
-            select=document.createElement('select')
-            for (i = 0; i < selectBase.options.length; i++) {
-            select[select.options.length]=new Option(selectBase.options[i].label,selectBase.options[i].value)
-            }
-            select.setAttribute('id',"inputSerie_"+nbEpisode)
-            select.setAttribute('name',"inputSerie_"+nbEpisode)
-            select.setAttribute('class',"form-select")
-            colSerie.appendChild(select)
+        colSerie=row.children[3]
         
-            row.appendChild(colSerie)
-        }
-        else{
-            
-            select=document.createElement('input')
-            select.setAttribute('id','inputSerie_'+nbEpisode)
-            select.setAttribute('name','inputSerie_'+nbEpisode)
-            select.setAttribute('type',"hidden")
-            select.setAttribute('value',selectBase.getAttribute('value'))
-            row.appendChild(select)
-        }
+        select=colSerie.children[0]
+        select.setAttribute('id','inputSerie_'+nbEpisode)
+        select.setAttribute('name','inputSerie_'+nbEpisode)
+       
         
         
-        colSaison=document.createElement('th')
-        colSaison.style="text-align: center; vertical-align: middle;"
+        colSaison=row.children[4]
         
-        inputSaison=document.createElement('input')
-        inputSaison.type="number"
-        inputSaison.setAttribute('min',1)
-        inputSaison.setAttribute('value',1)
+        
+        inputSaison=colSaison.children[0]
+       
+        
         inputSaison.setAttribute('id',"inputSaison_"+nbEpisode)
         inputSaison.setAttribute('name',"inputSaison_"+nbEpisode)
-        
-        colSaison.appendChild(inputSaison)
-        row.appendChild(colSaison)
-
-        
-        
-        
-        
-       
-
-       
-        
-        
-        
-        
-      
+    
         balise.appendChild(row)
-        
-        
-        
-        
-       
         
     });
     $('#supS').click(function(){
@@ -442,16 +395,107 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
             maxEpisode.setAttribute('value',maxEpisodeInt)
         }
     })
-    $('#ep').change(function(e){
+    $('#serieFiltre').change(function(e){
+        console.log(window.listeExport)
         
-        nomSerie=e.target.options[e.target.selectedIndex].value
-        episodes=document.getElementById('episodes')
+        window.serie=e.target.value
         
-        Array.from(episodes.children).forEach(function(e){
-            console.log(e.children[2].innerHTML)
-            //if(e.children[2])
-        })
+        
+        modif(0,10,1,window.ListeBase)
     
+    })
+    $('#saisonFiltre').change(function(e){
+        
+        
+        window.saison=e.target.value
+        
+        
+        modif(0,10,1,window.ListeBase)
+    
+    })
+
+    $('#titre').keyup(function(e){
+            
+        target=e.target.value
+
+        window.nom=target
+        
+        modif(0,10,1,window.ListeBase)
+        
+        
+
+    })
+    $('#sort_nom').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('nom',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('nom',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+    $('#sort_date').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('date',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('date',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+    $('#sort_serie').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('serieNom',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('serieNom',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+    $('#sort_saison').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('saison',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('saison',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
     })
 </script>
 {% endblock %}

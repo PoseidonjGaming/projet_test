@@ -366,7 +366,7 @@ class Aide extends AbstractController{
         $writer = new Write($spread); 
         
         $data=[['Nom épisode','Résumé épisode','Date ep','nom série','saison']];
-       
+        $exlude=['checkall',"titre",'dateStart',"dateEnd","saisonFiltre","checkExport","type","serieFiltre"];
       
         if($get==[]){
             $episodes=$repEpisode->findAll();
@@ -376,7 +376,7 @@ class Aide extends AbstractController{
             $episodes=[];
             foreach($tab as $int){
                         
-                if($int != "checkall"){
+                if(!in_array($int,$exlude)){
                     $episode=$entityManager->getRepository(Episode::class)->findUnEpisode($int);
                     array_push($episodes,$episode);
                 }

@@ -11,20 +11,20 @@ function deleteRow(){
 }
 
 function pager(liste){
-   
+    min=0
+    max=10
     
     nbPage=Math.floor(liste.length/10)
     
     pages=document.getElementById('pages')
     prev=document.createElement('li')
     prev.setAttribute('class',"page-item disabled")
-    min=0
-    max=10
+    
     buttonPrev=document.createElement('span')
     buttonPrev.setAttribute('class',"page-link")
     buttonPrev.setAttribute('id',"prev")
     buttonPrev.type="button"
-    buttonPrev.setAttribute('onclick','modif(0,10,1,window.ListeBase)')
+    buttonPrev.setAttribute('onclick','modif(0,10,1,window.ListeFitre)')
     buttonPrev.innerHTML="&laquo;&nbsp;Previous"
     prev.appendChild(buttonPrev)
     pages.appendChild(prev)
@@ -42,7 +42,7 @@ function pager(liste){
         }
         buttonPage=document.createElement('span')
         buttonPage.setAttribute('class',"page-link")
-        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+",window.ListeBase"+')')
+        buttonPage.setAttribute('onclick','modif('+min+','+max+','+(i+1)+",window.ListeFitre"+')')
         buttonPage.innerHTML=i+1
         page.appendChild(buttonPage)
         pages.appendChild(page)
@@ -58,7 +58,7 @@ function pager(liste){
     buttonNext.setAttribute('class',"page-link")
     buttonNext.setAttribute('id',"next")
     buttonNext.type="button"
-    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+",window.ListeBase"+')')
+    buttonNext.setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+o+",window.ListeFitre"+')')
     buttonNext.innerHTML="Next&nbsp;&raquo;"
 
     next.appendChild(buttonNext)
@@ -88,20 +88,21 @@ function modif(min,max,link,liste){
         })
         document.getElementById('pages').children[link].setAttribute('class','page-item active')
         
-        if(min!=0 && max!=10){
+        if(min!=0 && max!=10 && window.ListeFitre.length>10){
             document.getElementById("prev").parentElement.setAttribute('class','page-item')
-            document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+",window.ListeBase"+")")
+            document.getElementById("prev").setAttribute('onclick','modif('+(min-10)+','+(max-10)+','+(link-1)+",window.ListeFitre"+")")
         }
         else{
             document.getElementById("prev").parentElement.setAttribute('class','page-item disabled')
         }
-        if(max==(10*Math.ceil(window.ListeFitre.length/10))){
+        if(max==(10*Math.ceil(window.ListeFitre.length/10)) || window.ListeFitre.length<10){
             document.getElementById("next").parentElement.setAttribute('class','page-item disabled')
         }
         else{
             document.getElementById("next").parentElement.setAttribute('class','page-item')
-            document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+",window.ListeBase"+")")
+            document.getElementById("next").setAttribute('onclick','modif('+(min+10)+','+(max+10)+','+(link+1)+",window.ListeFitre"+")")
         }
+      
     }
     
     
@@ -111,7 +112,7 @@ function trie(col, reverse){
     sortListe=[]
     tempListe=[]
     window.ListeFitre=[]
-    console.log(window.ListeBase)
+    
     window.ListeBase.forEach(function(e){
         if(verif(e)){
             tempListe.push(e)
@@ -130,7 +131,7 @@ function trie(col, reverse){
             }
         })
     })
-    console.log(window.ListeFitre)
+   
     modif(0,10,1,window.ListeFitre)
 }
 
@@ -148,6 +149,7 @@ function addCol(val,row,liste,min,max){
             else{
                 newCol.innerHTML=val[item]
             }
+            
             if(liste.indexOf(val)>=min && liste.indexOf(val)<max || window.boolExport){
                 row.appendChild(newCol)
             }
