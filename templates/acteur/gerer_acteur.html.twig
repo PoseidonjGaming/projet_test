@@ -195,7 +195,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
             success: function(element){
                 
                 window.ListeBase=element
-                window.exception=['id',"serieId",'resume']
+                window.exception=['id']
                 
                 document.getElementById('prenom').value=""
                 document.getElementById('nom').value=""
@@ -207,9 +207,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
                 document.getElementById('checkall').checked=false
 
                 window.nom=""
-                window.dateStart=""
-                window.dateEnd="" 
-                window.saison=""
+                window.prenom=""
                
                 
                 
@@ -224,7 +222,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         })
     })
     $('#checkall').change(function () {
-       if(this.checked){
+        if(this.checked){
             Array.from(window.tbody.children).forEach(function(e){
                 e.children[3].children[0].checked=true
                 window.listeExport.push(e.children[3].children[0].getAttribute('id'))
@@ -262,36 +260,21 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         nbActeur=parseInt(inputMax.getAttribute('value'))
         inputMax.setAttribute('value',nbActeur+1)
         balise=document.getElementById('acteurS')
-        row=document.createElement('tr')
-        
-
+        row=balise.children[2].cloneNode(true)
         row.setAttribute('id',"row_"+nbActeur)
-        
-        colPrenom=document.createElement('th')
-        colPrenom.style="text-align: center; vertical-align: middle;"
-        
-        inputPrenom=document.createElement('input')
-        inputPrenom.type="text"
+
+        colPrenom=row.children[0]
+        inputPrenom=colPrenom.children[0]
         inputPrenom.setAttribute('id',"inputPrenom_"+nbActeur)
         inputPrenom.setAttribute('name',"inputPrenom_"+nbActeur)
 
-        colPrenom.appendChild(inputPrenom)
-
-        colNom=document.createElement('th')
-        colNom.style="text-align: center; vertical-align: middle;"
-        
-        inputNom=document.createElement('input')
-        inputNom.type="text"
+        colNom=row.children[1]
+        inputNom=colNom.children[0]
         inputNom.setAttribute('id',"inputNom_"+nbActeur)
         inputNom.setAttribute('name',"inputNom_"+nbActeur)
-        
-        colNom.appendChild(inputNom)
-
-        
-
-        row.appendChild(colPrenom)
-        row.appendChild(colNom)
-        
+        console.log(row)
+       
+       
       
         balise.appendChild(row)
     });

@@ -1,21 +1,61 @@
+serie=""
+buttonsRow=""
 nom=""
 prenom=""
-buttonsRow=""
+acteur=""
 
-function modifier(id, nom, prenom){
-        
+
+function modifier(id, nom,index,acteur){
+    selectBase=document.getElementById('personnage_form_serie')
+    console.log(selectBase.options)
     if(id!=null){
-        document.getElementById('acteur_form_nom').setAttribute('value', nom);
-        document.getElementById('acteur_form_prenom').setAttribute('value', prenom);
+        document.getElementById('personnage_form_nom').setAttribute('value', nom);
         document.getElementById('ID').setAttribute('value',id);
-        document.getElementById('exampleModalLongTitle').innerHTML="Modification de l'acteur "
+        document.getElementById('exampleModalLongTitle').innerHTML="Modification du personnage" 
+        if(selectBase!=null){
+            Array.from(selectBase.options).forEach(function(e){
+               
+                if(e.value==index){
+                   
+                    e.setAttribute("selected",'selected')
+                }
+                else if($( this ).prop( "selected" )){
+                   e.removeAttr("selected")
+                }
+            })
+            
+        }
+        Array.from(document.getElementById('personnage_form_acteur').options).forEach(function(e){
+               
+            if(e.value==acteur){
+               
+                e.setAttribute("selected",'selected')
+            }
+            else if($( this ).prop( "selected" )){
+               e.removeAttr("selected")
+            }
+        })
+        
                   
     }
     else{
-        document.getElementById('acteur_form_nom').setAttribute('value', '');
-        document.getElementById('acteur_form_prenom').setAttribute('value', '');
+        document.getElementById('personnage_form_nom').setAttribute('value', '');
         document.getElementById('ID').setAttribute('value','');  
-        document.getElementById('exampleModalLongTitle').innerHTML="Ajouter un acteur"     
+        document.getElementById('exampleModalLongTitle').innerHTML="Ajouter un personnage" 
+        
+        if(selectBase!=null){
+            Array.from(selectBase.options).forEach(function(e){
+               
+                if(e.getAttribute('id')==index ){
+                   
+                    e.setAttribute("selected",'selected')
+                }
+                else if($( this ).prop( "selected" )){
+                   e.removeAttr("selected")
+                }
+            })
+            
+        }     
     }
     
 }
@@ -24,19 +64,18 @@ function modifier(id, nom, prenom){
 function supprimer(Id){
     if(Id==null){
         
-        document.getElementById('form').action='/supprimer_acteurs';
+        document.getElementById('form').action='/supprimer_personnages';
     }
     else{
-      
-        document.getElementById('form').action='/supprimer_acteur/'+Id;
+        
+        document.getElementById('form').action='/supprimer_personnage/'+Id;
+        
     }
 }
 function exporter(){
-    document.getElementById('pModalAutre').innerHTML="Exporter ces acteurs";
+    document.getElementById('pModalAutre').innerHTML="Exporter ces personnages";
     document.getElementById('supModalLongTitle').innerHTML="Exportation"
     document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
-    document.getElementById('form').action='/export';
-    
     document.getElementById('form').action='/export'
     input=document.createElement('input')
     input.type="hidden"
@@ -50,21 +89,23 @@ function exporter(){
     input.value=Listvalue
     
     document.getElementById('pModalAutre').appendChild(input)
-   
     
 }
 
 function verif(e){
     bool=true
     
-    if(window.prenom!=""){
-        bool=bool && e['prenom'].includes(window.prenom)
-    }
+    
     if(window.nom!=""){
         bool=bool && e['nom'].includes(window.nom)
-    }
+        }
    
-    
+    if(window.serie!==''){
+        bool=bool && e['serieId']==window.serie
+    }
+    if(window.acteur!==''){
+        bool=bool && e['acteurId']==window.acteur
+    }
     
     
     return bool
@@ -78,14 +119,13 @@ function filtre(min,max){
     window.ListeFitre.forEach(function(e){
         
         row=document.createElement('tr')
-        
-            
+       
             
         addCol(e,row,window.ListeFitre,min,max)
 
 
         colButton=window.buttonsRow.cloneNode(true)
-        colButton.children[0].setAttribute('onclick','modifier("'+e['id']+'","'+e['nom']+'","'+e['prenom']+'")')
+        colButton.children[0].setAttribute('onclick','modifier("'+e['id']+'","'+e['nom']+'","'+e['serieId']+'","'+e['acteurId']+'")')
         colButton.children[0].setAttribute('id','modif_"'+e['id'])
         colButton.children[0].setAttribute('name','modif_"'+e['id'])
         colButton.children[1].setAttribute('onclick','supprimer("'+e['id']+'")')
@@ -113,13 +153,14 @@ function filtre(min,max){
                 if(window.listeExport.includes(e['id'].toString())){
                     check.checked=true
                 }
+                //console.log(check)
                 boolChekAll=boolChekAll && check.checked==true
 
                 th.appendChild(check)
                 row.appendChild(th)
             }
             else{
-                row.children[2].setAttribute('colspan','2')
+                row.children[3].setAttribute('colspan','2')
             }
             
            

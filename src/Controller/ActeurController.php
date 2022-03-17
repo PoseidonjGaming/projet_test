@@ -120,15 +120,5 @@ class ActeurController extends AbstractController
 
         
     }
-     
-    /**
-     * @Route("/export_acteur/{fic}", name="export_acteur")
-     */
-    public function export_acteur(Request $request,$fic): Response
-    { 
-       
-       
-      
-        
-    }
+   
 }

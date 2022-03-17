@@ -74,4 +74,17 @@ class Personnage
 
         return $this;
     }
+
+    public function dataJson(){
+        $data=[
+            'id'=>$this->getId(),
+            'nom'=>$this->getNom(),
+            'serieId'=>$this->getSerie()->getId(),
+            'serieNom'=>$this->getSerie()->getNom(),
+            'acteurId'=>$this->getActeur()->getId(),
+            'acteur'=>$this->getActeur()->getPrenom().' '.$this->getActeur()->getNom()
+           
+        ];
+        return $data;
+    }
 }

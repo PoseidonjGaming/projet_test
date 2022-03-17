@@ -9,63 +9,93 @@
 </style>
 
 <div class="example-wrapper">
-    <form  method="get" id="form">
-        <table class="table table-striped table-hover table-bordered" >
-            <thead class="table-dark">
-                <tr>
-                    <th style="text-align: center; vertical-align: middle; " >Nom</th>
-                    <th style="text-align: center; vertical-align: middle;">Nom de la série</th>
-                    {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">Acteur</th>
+ <table class="table table-striped table-hover table-bordered" >
+        <thead class="table-dark">
+            <tr>
+                <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;">Nom de la série <a class="link-primary" id="sort_serie">Default</a></th>
+                {% if not id is defined %}
+                    <th style="text-align: center; vertical-align: middle;">Acteur <a class="link-primary" id="sort_acteur">Default</a></th>
+                {% endif %}
+                <th style="text-align: center; vertical-align: middle;" >
+                    <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
+                    onclick="modifier()"> 
+                        Ajouter un personnage
+                    </button>
+                    <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer tous les personnages</button>
+                    {% if id is defined %}
+                        <a class="btn btn-primary" href="{{path('gerer_acteurs')}}" type="button">Retour</a>
                     {% endif %}
-                    <th style="text-align: center; vertical-align: middle;" >
-                        <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
-                        onclick="modifier()"> 
-                            Ajouter un personnage
-                        </button>
-                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer tous les personnages</button>
-                        {% if id is defined %}
-                            <a class="btn btn-primary" href="{{path('gerer_acteurs')}}" type="button">Retour</a>
-                        {% endif %}
-                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
-                        onclick="exporter()"> 
-                            Exporter un personnage
-                        </button>
-                        <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_personnages_add"> 
-                            Ajouter plusieurs personnages
-                        </button>
-                        
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;" >
-                        <label for="checkall">
-                            <input type="checkbox" id='checkall' name="checkall" > Tout cocher
-                            
-                        </label>    
-                    </th>
-                </tr>
-            </thead>
-            <tbody>  
-                {% for unPerso in personnages %}
-                <tr>
-                    <th style="text-align: center; vertical-align: middle;">{{unPerso.nom}}</th>  
-                    <th style="text-align: center; vertical-align: middle;">{{unPerso.serie.nom}}</th>
-                    {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">{{unPerso.acteur.prenom}} {{unPerso.acteur.nom}}</th>
-                    {% endif %}              
-                    <th style="text-align: center; vertical-align: middle;">
-                        <button type="button" class="btn btn-warning"  name="{{unPerso.id}}" id="{{unPerso.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
-                        onclick="modifier('{{unPerso.id}}','{{unPerso.nom}}')"> 
-                            Modifier
-                        </button>
-                        <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unPerso.id}}')">Supprimer</button>
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="checkbox" id='{{unPerso.id}}' name="{{unPerso.id}}">
-                    </th>
-                </tr>
-                {% endfor %}   
-            </tbody>
-        </table>
+                    <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
+                    onclick="exporter()"> 
+                        Exporter un personnage
+                    </button>
+                    <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_personnages_add"> 
+                        Ajouter plusieurs personnages
+                    </button>    
+                </th>
+                <th style="text-align: center; vertical-align: middle;" >
+                    <label for="checkall">
+                        <input type="checkbox" id='checkall' name="checkall" > Tout cocher                            
+                    </label>    
+                </th>
+            </tr>
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="text" id="nom" name="nom">
+                </th> 
+                {% if not id is defined %}
+                <th style="text-align: center; vertical-align: middle;"> 
+                <select id="serieFiltre" class="form-select">
+                        <option value="">Vieullez sélectionner une série</option>
+                        {% for uneSerie in series %}
+                        <option value="{{uneSerie.id}}">{{uneSerie.nom}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th style="text-align: center; vertical-align: middle;"> 
+                    <select id="acteurFiltre" class="form-select">
+                        <option value="">Vieullez sélectionner un acteur</option>
+                        {% for unActeur in acteurs %}
+                        <option value="{{unActeur.id}}">{{unActeur.prenom}} {{unActeur.nom}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                {% endif %}
+                <th style="text-align: center; vertical-align: middle;"> 
+                    
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <label class="switch">
+                        <input type="checkbox" id="checkExport" name="checkExport" onclick="modExport()">
+                        <span class="slider round"></span>
+                    </label>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="persos">  
+            {% for unPerso in personnages %}
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">{{unPerso.nom}}</th>  
+                <th style="text-align: center; vertical-align: middle;">{{unPerso.serie.nom}}</th>
+                {% if not id is defined %}
+                <th style="text-align: center; vertical-align: middle;">{{unPerso.acteur.prenom}} {{unPerso.acteur.nom}}</th>
+                {% endif %}              
+                <th style="text-align: center; vertical-align: middle;">
+                    <button type="button" class="btn btn-warning"  name="{{unPerso.id}}" id="{{unPerso.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
+                    onclick="modifier('{{unPerso.id}}','{{unPerso.nom}}','{{unPerso.serie.id}}','{{unPerso.acteur.id}}')"> 
+                        Modifier
+                    </button>
+                    <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unPerso.id}}')">Supprimer</button>
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="checkbox" id='{{unPerso.id}}' name="{{unPerso.id}}">
+                </th>
+            </tr>
+            {% endfor %}   
+        </tbody>
+    </table>
+    <form  method="get" id="form">
         <div class="modal fade" id="modal_supprimer" tabindex="-1" data-bs-keyboard="true" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         <div class="modal-dialog" >
                 <div class="modal-content">
@@ -76,7 +106,8 @@
                     <div class="modal-body">
                         <div class="container-fluid">
                             <p id="pModalAutre">Êtes-vous sur de vouloir supprimer ce personnage ?</p>
-                            <input id="route" name="route" type="hidden" value={{route}}> 
+                            <input id="route" name="route" type="hidden" value={{route}}>
+                            <input type="hidden" class="btn btn-danger delete"  id="type" name="type" value="personnage">  
                         </div>     
                     </div>
                     <div class="modal-footer">
@@ -186,68 +217,92 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         </div>
     </div>
 </div>
+<ul class="pagination justify-content-center" >
+    <nav>
+        <ul class="pagination" id="pages">
+               
+        </ul>
+    </nav>
+</ul>
 {% endblock %}
 
 
 {% block javascripts %}
+<script src="/Javascript/personnage.js"></script>
+<script src="/Javascript/gestion.js"></script>
 <script>
-    
+    $(document).ready(function(){   
+        $.ajax({
+            url: "menuJSON?type=personnage",
+            context: document.body,
+            dataType:'json',
+            
+            
+            success: function(element){
+                
+                window.ListeBase=element
+                window.exception=['id','serieId','acteurId']
+                
+               
+                document.getElementById('nom').value=""
+                document.getElementById('checkExport').checked=false
+                document.getElementById('checkall').disabled=true
+                document.getElementById('checkall').checked=false
+
+                window.nom=""
+                window.acteur=""
+                window.serie=""
+                
+             
+               
+                
+                
+                
+                window.tbody=document.getElementById('persos')
+                window.buttonsRow=tbody.children[0].children[3]
+               
+                window.boolExport=false
+                trie('id',false)
+                
+            }
+        })
+    })
+
     $('#checkall').change(function () {
-        if($( this ).prop( "checked" )){$('input:checkbox').attr('checked','checked');} 
-        else $('input:checkbox').removeAttr('checked');
+        if(this.checked){
+            Array.from(window.tbody.children).forEach(function(e){
+                e.children[4].children[0].checked=true
+                window.listeExport.push(e.children[4].children[0].getAttribute('id'))
+            
+            })
+            
+        } 
+        else{
+            
+            Array.from(window.tbody.children).forEach(function(e){
+               
+
+                
+                if(window.listeExport.includes(e.children[4].children[0].getAttribute('id'))&&e.children[4].children[0].checked){
+                    window.listeExport.splice(window.listeExport.indexOf(e.children[4].children[0].getAttribute('id')),1)
+                    e.children[4].children[0].checked=false
+                }
+                
+                
+            })
+            
+        }
         
     }); 
 
-    function modifier(id, nom, prenom){
-        
-        if(id!=null){
-            document.getElementById('personnage_form_nom').setAttribute('value', nom);
-            document.getElementById('ID').setAttribute('value',id);
-            document.getElementById('exampleModalLongTitle').innerHTML="Modification du personnage" 
-                      
-        }
-        else{
-            document.getElementById('personnage_form_nom').setAttribute('value', '');
-            document.getElementById('ID').setAttribute('value','');  
-            document.getElementById('exampleModalLongTitle').innerHTML="Ajouter un personnage"      
-        }
-        
-    }
-   
-
-    function supprimer(Id){
-        if(Id==null){
-            
-            document.getElementById('form').action='/supprimer_personnages';
-        }
-        else{
-            
-            document.getElementById('form').action='/supprimer_personnage/'+Id;
-            
-        }
-    }
-    function exporter(Id,fic){
-        document.getElementById('pModalAutre').innerHTML="Exporter ces personnages";
-        document.getElementById('supModalLongTitle').innerHTML="Exportation"
-        document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
-        if(fic==null){
-            
-            document.getElementById('form').action='/export_personnage/1';
-            
-        }
-        else{
-           
-            document.getElementById('form').action='/export_personnage/'+Id;
-        }
-        
-    }
+    
     
     $('#addS').click(function(){
         inputMax=document.getElementById('maxPerso')
         nbPerso=parseInt(inputMax.getAttribute('value'))
         inputMax.setAttribute('value',nbPerso+1)
         balise=document.getElementById('persoS')
-        row=document.createElement('tr')
+        row=document.getElementById()
         row.setAttribute('id',"row_"+nbPerso)
 
        
@@ -319,5 +374,80 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         }
         return select
     }
+    $('#serieFiltre').change(function(e){
+        
+        
+        window.serie=e.target.value
+        
+        
+        modif(0,10,1,window.ListeBase)
+    
+    })
+    $('#acteurFiltre').change(function(e){
+        
+        
+        window.acteur=e.target.value
+        
+        
+        modif(0,10,1,window.ListeBase)
+    
+    })
+
+    $('#sort_nom').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('nom',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('nom',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+    $('#sort_serie').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('serieNom',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('serieNom',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
+    })
+
+    $('#sort_acteur').click(function(){
+    
+        
+        if(this.innerHTML=="Default"){
+            trie('acteur',false)
+            this.innerHTML="A...Z"
+        }
+        else if(this.innerHTML=="A...Z"){
+            trie('acteur',true)
+            this.innerHTML="Z...A"
+        }
+        else{
+                    
+            trie('id',false)
+            this.innerHTML="Default"
+        }
+        
+    })
 </script>
 {% endblock %}
+{% block stylesheets %}<link rel="stylesheet" href="CSS/switch.css" type="text/css">{% endblock %}
