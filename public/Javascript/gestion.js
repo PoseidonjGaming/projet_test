@@ -4,6 +4,8 @@ exception=[]
 tbody=""
 boolExport=""
 listeExport=[]
+
+
 function deleteRow(){
     Array.from(window.tbody.children).forEach(function(e){
         e.remove()

@@ -1,60 +1,21 @@
-dateStart=""
-dateEnd=""
 nom=""
-saison=""
-serie=""
+prenom=""
 buttonsRow=""
-function modifier(id, nom, dateDiff, resume, index, saison){
+
+function modifier(id, nom, prenom){
         
-    selectBase=document.getElementById('serie')
     if(id!=null){
-        document.getElementById('episode_form_nom').setAttribute('value', nom);
-        document.getElementById('episode_form_date_prem_diff').setAttribute('value', dateDiff);
-        document.getElementById('episode_form_resume').value= resume;
-        document.getElementById('saison').value=saison;
+        document.getElementById('acteur_form_nom').setAttribute('value', nom);
+        document.getElementById('acteur_form_prenom').setAttribute('value', prenom);
         document.getElementById('ID').setAttribute('value',id);
-        document.getElementById('exampleModalLongTitle').innerHTML="Modification de l'épisode"
-        
-       
-        
-        
-        
-        if(selectBase!=null){
-            Array.from(selectBase.options).forEach(function(e){
-               
-                if(e.getAttribute('id')==index ){
-                   
-                    e.setAttribute("selected",'selected')
-                }
-                else if($( this ).prop( "selected" )){
-                   e.removeAttr("selected")
-                }
-            })
-            
-        }
+        document.getElementById('exampleModalLongTitle').innerHTML="Modification de l'acteur "
                   
     }
     else{
-        
-        document.getElementById('episode_form_nom').setAttribute('value','');
-        document.getElementById('episode_form_date_prem_diff').setAttribute('value', '');
-        document.getElementById('episode_form_resume').value= '';
-        document.getElementById('ID').setAttribute('value','');
-        document.getElementById('exampleModalLongTitle').innerHTML="Ajout d'un épisode"
-        
-        if(selectBase!=null){
-            Array.from(selectBase.options).forEach(function(e){
-                 if(e.getAttribute('value')=="" ){
-                    e.setAttribute("selected",'selected')
-                }
-                else if($( this ).prop( "selected" )){
-                    e.removeAttr("selected")
-                }
-            })
-           
-        }
-        
-        
+        document.getElementById('acteur_form_nom').setAttribute('value', '');
+        document.getElementById('acteur_form_prenom').setAttribute('value', '');
+        document.getElementById('ID').setAttribute('value','');  
+        document.getElementById('exampleModalLongTitle').innerHTML="Ajouter un acteur"     
     }
     
 }
@@ -62,21 +23,20 @@ function modifier(id, nom, dateDiff, resume, index, saison){
 
 function supprimer(Id){
     if(Id==null){
-     
-        document.getElementById('form').action='/supprimer_episodes';
+        
+        document.getElementById('form').action='/supprimer_acteurs';
     }
     else{
       
-        document.getElementById('form').action='/supprimer_episode/'+Id;
+        document.getElementById('form').action='/supprimer_acteur/'+Id;
     }
 }
-
 function exporter(){
-    
-    document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
-    document.getElementById('pModalAutre').innerHTML="Exporter ces séries";
+    document.getElementById('pModalAutre').innerHTML="Exporter ces acteurs";
     document.getElementById('supModalLongTitle').innerHTML="Exportation"
-   
+    document.getElementById('submitAutre').setAttribute('class','btn btn-primary');
+    document.getElementById('form').action='/export';
+    
     document.getElementById('form').action='/export'
     input=document.createElement('input')
     input.type="hidden"
@@ -90,14 +50,18 @@ function exporter(){
     input.value=Listvalue
     
     document.getElementById('pModalAutre').appendChild(input)
+   
     
 }
 
 function verif(e){
     bool=true
     
+    if(window.prenom!=""){
+        bool=bool && e['prenom'].includes(window.prenom)
+    }
     if(window.nom!=""){
-    bool=bool && e['nom'].includes(window.nom)
+        bool=bool && e['nom'].includes(window.nom)
     }
    
     if(window.dateStart!=="" && window.dateEnd!==''){
@@ -117,7 +81,6 @@ function verif(e){
     
     
 }
-
 function filtre(min,max){
     
     boolChekAll=true
@@ -125,15 +88,14 @@ function filtre(min,max){
     window.ListeFitre.forEach(function(e){
         
         row=document.createElement('tr')
-        splitDate=e['date'].date.substring(0,10).split('-')
-        temp=splitDate[2]+"/"+splitDate[1]+"/"+splitDate[0]
+        
             
             
         addCol(e,row,window.ListeFitre,min,max)
 
 
         colButton=window.buttonsRow.cloneNode(true)
-        colButton.children[0].setAttribute('onclick','modifier("'+e['id']+'","'+e['nom']+'","'+e['date']['date'].substring(0,10)+'","'+e['resume']+'","'+e['serieId']+'","'+e['saison']+'")')
+        colButton.children[0].setAttribute('onclick','modifier("'+e['id']+'","'+e['nom']+'","'+e['prenom']+'")')
         colButton.children[0].setAttribute('id','modif_"'+e['id'])
         colButton.children[0].setAttribute('name','modif_"'+e['id'])
         colButton.children[1].setAttribute('onclick','supprimer("'+e['id']+'")')
@@ -161,14 +123,13 @@ function filtre(min,max){
                 if(window.listeExport.includes(e['id'].toString())){
                     check.checked=true
                 }
-                //console.log(check)
                 boolChekAll=boolChekAll && check.checked==true
 
                 th.appendChild(check)
                 row.appendChild(th)
             }
             else{
-                row.children[4].setAttribute('colspan','2')
+                row.children[2].setAttribute('colspan','2')
             }
             
            

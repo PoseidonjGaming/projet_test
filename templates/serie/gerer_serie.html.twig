@@ -9,84 +9,81 @@
 </style>
 
 <div class="example-wrapper">
-    <form  method="get" id="form">
-        <table class="table table-striped table-hover table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th style="text-align: center; vertical-align: middle;">Nom <a class="link-primary" id="sort_nom">Default</a></th>
-                    <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th>
-                    <th style="text-align: center; vertical-align: middle;">Nombre de saison <a class="link-primary" id="sort_saison">Default</a> </th>
-                    <th style="text-align: center; vertical-align: middle;">Nombre d'épisode <a class="link-primary" id="sort_nbEp">Default</a></th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">Nom <a class="link-primary" id="sort_nom">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;">Nombre de saison <a class="link-primary" id="sort_saison">Default</a> </th>
+                <th style="text-align: center; vertical-align: middle;">Nombre d'épisode <a class="link-primary" id="sort_nbEp">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
                         onclick="modifier()"> 
-                            Ajouter une série
-                        </button>
-                        <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer()"> Supprimer plusieurs séries</button>
-                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
-                        onclick="exporter()"> 
-                            Exporter une série
-                        </button>
-                        <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_series_add"> 
-                            Ajouter plusieurs séries
-                        </button>
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;" >
-                        <label for="checkall">
-                            <input type="checkbox" id='checkall' name="checkall" > Tout cocher
-                        </label>     
-                    </th>
-                </tr>
-                <tr>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="text" id="titre" name="titre">
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="date" id="dateStart" name="dateStart">
-                        <input type="date" id="dateEnd" name="dateEnd">
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="number" id="saison" name="saison" min="1">
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="number" id="episodes" name="episodes" min="0">
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;" >
-                       
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;" >
-                        <label class="switch">
-                            <input type="checkbox" id="checkExport" name="checkExport" onclick="modExport()">
-                            <span class="slider round"></span>
-                        </label>
-                    </th>
-                  
-                    
-                </tr>
-            </thead>
-            <tbody id="serie">
-                {% for uneSerie in serie %}
-                <tr>
-                    <td style="text-align: center; vertical-align: middle;">{{uneSerie.nom}}</td>
-                    <td style="text-align: center; vertical-align: middle;">{{uneSerie.dateDiff|date("d/m/Y")}}</td>
-                    <td style="text-align: center; vertical-align: middle;"> {{uneSerie.saisons|length}} </td>
-                    {% set nbEP = 0 %}
-                    {% for uneSaison in uneSerie.saisons %}      
-                        {% set nbEP = nbEP + uneSaison.episodes|length  %}
-                    {% endfor %}
-                    <td style="text-align: center; vertical-align: middle;"> {{nbEP}} </td>    
-                    <td style="text-align: center; vertical-align: middle;"> 
-                        <button type="button" class="btn btn-warning"  name="{{uneSerie.id}}" id="{{uneSerie.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{uneSerie.nom}}','{{uneSerie.dateDiff|date("Y-m-d")}}','{{uneSerie.resume}}','{{uneSerie.urlBa}}','{{uneSerie.affiche}}','{{uneSerie.id}}')"> 
-                            Modifier
-                        </button>
-                        <button type="button" class="btn btn-danger"  name="supSerie" id="supSerie" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{uneSerie.id}}')">Supprimer</button>
-                        <a type="button" class="btn btn-primary" href="{{path('gerer_episode',{'id': uneSerie.id})}}">Gerer les épisodes</a>
-                    </td>
-                    <td style="text-align: center; vertical-align: middle;"><input type="checkbox" id='{{uneSerie.id}}' name="{{uneSerie.id}}"></td>
-                </tr> 
+                         Ajouter une série
+                    </button>
+                    <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer()"> Supprimer plusieurs séries</button>
+                    <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
+                    onclick="exporter()"> 
+                         Exporter une série
+                    </button>
+                    <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_series_add"> 
+                        Ajouter plusieurs séries
+                    </button>
+                </th>
+                <th style="text-align: center; vertical-align: middle;" >
+                    <label for="checkall">
+                        <input type="checkbox" id='checkall' name="checkall" > Tout cocher
+                    </label>     
+                </th>
+            </tr>
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="text" id="titre" name="titre">
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="date" id="dateStart" name="dateStart">
+                    <input type="date" id="dateEnd" name="dateEnd">
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="number" id="saison" name="saison" min="1">
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="number" id="episodes" name="episodes" min="0">
+                </th>
+                <th style="text-align: center; vertical-align: middle;" >      
+                </th>
+                <th style="text-align: center; vertical-align: middle;" >
+                    <label class="switch">
+                        <input type="checkbox" id="checkExport" name="checkExport" onclick="modExport()">
+                        <span class="slider round"></span>
+                    </label>
+                </th> 
+            </tr>
+        </thead>
+        <tbody id="serie">
+            {% for uneSerie in serie %}
+            <tr>
+                <td style="text-align: center; vertical-align: middle;">{{uneSerie.nom}}</td>
+                <td style="text-align: center; vertical-align: middle;">{{uneSerie.dateDiff|date("d/m/Y")}}</td>
+                <td style="text-align: center; vertical-align: middle;"> {{uneSerie.saisons|length}} </td>
+                {% set nbEP = 0 %}
+                {% for uneSaison in uneSerie.saisons %}      
+                    {% set nbEP = nbEP + uneSaison.episodes|length  %}
                 {% endfor %}
-            </tbody>
-        </table>       
+                <td style="text-align: center; vertical-align: middle;"> {{nbEP}} </td>    
+                <td style="text-align: center; vertical-align: middle;"> 
+                    <button type="button" class="btn btn-warning"  name="{{uneSerie.id}}" id="{{uneSerie.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{uneSerie.nom}}','{{uneSerie.dateDiff|date("Y-m-d")}}','{{uneSerie.resume}}','{{uneSerie.urlBa}}','{{uneSerie.affiche}}','{{uneSerie.id}}')"> 
+                        Modifier
+                    </button>
+                    <button type="button" class="btn btn-danger"  name="supSerie" id="supSerie" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{uneSerie.id}}')">Supprimer</button>
+                    <a type="button" class="btn btn-primary" href="{{path('gerer_episode',{'id': uneSerie.id})}}">Gerer les épisodes</a>
+                </td>
+                <td style="text-align: center; vertical-align: middle;"><input type="checkbox" id='{{uneSerie.id}}' name="{{uneSerie.id}}"></td>
+            </tr> 
+            {% endfor %}
+        </tbody>
+    </table>
+    <form  method="get" id="form">    
         <div class="modal fade" id="modal_supprimer" tabindex="-1" data-bs-keyboard="false" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
             <div class="modal-dialog" >
                 <div class="modal-content">

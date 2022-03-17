@@ -97,4 +97,13 @@ class Acteur
 
         return $this;
     }
+
+    public function dataJson(){
+        $data=[
+            'id'=>$this->getId(),
+            'prenom'=>$this->getPrenom(),
+            'nom'=>$this->getNom(),
+        ];
+        return $data;
+    }
 }

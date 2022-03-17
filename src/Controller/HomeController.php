@@ -182,7 +182,11 @@ class HomeController extends AbstractController
            return $this->redirectToRoute('serie');
             
         }
-        
+        /*dump($_GET);
+        return $this->render('home/test2.html.twig', [
+            
+          
+        ]);*/
     }
 
     

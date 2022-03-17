@@ -136,11 +136,24 @@ function exporter(){
     document.getElementById('supModalLongTitle').innerHTML="Exportation"
    
     document.getElementById('form').action='/export'
+
+    input=document.createElement('input')
+    input.type="hidden"
+    input.setAttribute('id','listeExport')
+    input.setAttribute('name','listeExport')
+    Listvalue=window.listeExport[0]
+    window.listeExport.splice(0,1)
+    window.listeExport.forEach(function(e){
+        Listvalue=Listvalue+","+e
+    })
+    input.value=Listvalue
+    
+    document.getElementById('pModalAutre').appendChild(input)
     
     
 }
 
-function previewPicture (e){
+function previewPicture(e){
     var image = document.getElementById('image');
     
     const [picture] = e.files;

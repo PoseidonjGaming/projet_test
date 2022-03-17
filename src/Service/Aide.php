@@ -310,11 +310,12 @@ class Aide extends AbstractController{
     }
 
     public function export_serie($get){
+        
         $repSerie=$this->getDoctrine()->getRepository(Serie::class);
         $entityManager = $this->getDoctrine()->getManager();
                
       
-        $exlude=['checkall',"titre",'dateStart',"dateEnd","saison","episodes","checkExport","type"];
+        
         
         $spread=new SpreadSheet();
         $writer = new Write($spread); 
@@ -324,14 +325,11 @@ class Aide extends AbstractController{
             $series=$repSerie->findAll();
         }
         elseif($get!=[]){
-            $tab=array_keys($get);
+            $tab=explode(',',$get['listeExport']);
             $series=[];
             foreach($tab as $int){
-                        
-                if(!in_array($int,$exlude)){
-                    $serie=$entityManager->getRepository(Serie::class)->findUneSerie($int);
-                    array_push($series,$serie);
-                }
+                $serie=$entityManager->getRepository(Serie::class)->findUneSerie($int);
+                array_push($series,$serie);
             }
         }
         else{
@@ -366,21 +364,17 @@ class Aide extends AbstractController{
         $writer = new Write($spread); 
         
         $data=[['Nom épisode','Résumé épisode','Date ep','nom série','saison']];
-        $exlude=['checkall',"titre",'dateStart',"dateEnd","saisonFiltre","checkExport","type","serieFiltre"];
+        
       
         if($get==[]){
             $episodes=$repEpisode->findAll();
         }
         elseif($get!=[]){
-            $tab=array_keys($get);
+            $tab=explode(',',$get['listeExport']);
             $episodes=[];
             foreach($tab as $int){
-                        
-                if(!in_array($int,$exlude)){
-                    $episode=$entityManager->getRepository(Episode::class)->findUnEpisode($int);
-                    array_push($episodes,$episode);
-                }
-                
+                $episode=$entityManager->getRepository(Episode::class)->findUnEpisode($int);
+                array_push($episodes,$episode);
             }
         }
         else{
@@ -416,15 +410,11 @@ class Aide extends AbstractController{
             $personnages=$repPerso->findAll();
         }
         elseif($get!=[]){
-            $tab=array_keys($get);
+            $tab=explode(',',$get['listeExport']);
             $personnages=[];
             foreach($tab as $int){
-                        
-                if($int != "checkall"){
-                    $personnage=$entityManager->getRepository(Personnage::class)->findUnPersonnage($int);
-                    array_push($personnages,$personnage);
-                }
-                
+                $personnage=$entityManager->getRepository(Personnage::class)->findUnPersonnage($int);
+                array_push($personnages,$personnage);
             }
         }
         else{
@@ -460,14 +450,14 @@ class Aide extends AbstractController{
             $acteurs=$repActeur->findAll();
         }
         elseif($_GET!=[]){
-            $tab=array_keys($get);
+            $tab=explode(',',$get['listeExport']);
             $acteurs=[];
             foreach($tab as $int){
                         
-                if($int != "checkall"){
-                    $acteur=$entityManager->getRepository(Acteur::class)->findUnActeur($int);
-                    array_push($acteurs,$acteur);
-                }
+               
+                $acteur=$entityManager->getRepository(Acteur::class)->findUnActeur($int);
+                array_push($acteurs,$acteur);
+                
                 
             }
            

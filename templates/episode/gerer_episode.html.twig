@@ -9,100 +9,93 @@
 </style>
 
 <div class="example-wrapper">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th>
+                {% if not id is defined %}
+                    <th style="text-align: center; vertical-align: middle;">Serie <a class="link-primary" id="sort_serie">Default</a></th>
+                {% endif %}
+                <th style="text-align: center; vertical-align: middle;">Saison <a class="link-primary" id="sort_saison">Default</a></th>
+                <th style="text-align: center; vertical-align: middle;" >                         
+                    <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
+                    onclick="modifier()"> 
+                        Ajouter un épisode
+                    </button>
+                    <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer plusieurs épisodes</button>
+                    {% if id is defined %}
+                        <a class="btn btn-primary" href="{{path('gerer_serie')}}" type="button">Retour</a>
+                    {% endif %}
+                    <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_episodes_add"> 
+                        Ajouter plusieurs épisode
+                    </button>
+                </th>
+                <th style="text-align: center; vertical-align: middle;" width="150px">
+                    <label for="checkall">
+                        <input type="checkbox" id='checkall' name="checkall" > Tout cocher
+                    </label>                        
+                </th>
+            </tr>
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="text" id="titre" name="titre">
+                </th> 
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="date" id="dateStart" name="dateStart">
+                    <input type="date" id="dateEnd" name="dateEnd">
+                </th>
+                {% if not id is defined %}
+                <th style="text-align: center; vertical-align: middle;"> 
+                    <select id="serieFiltre" class="form-select">
+                        <option value="">Vieullez sélectionner une série</option>
+                        {% for uneSerie in series %}
+                        <option value="{{uneSerie.id}}">{{uneSerie.nom}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                {% endif %}
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="number" id="saisonFiltre" name="saisonFiltre" min="1">
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
+                    onclick="exporter()"> 
+                        Exporter un Episode
+                    </button>
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <label class="switch">
+                        <input type="checkbox" id="checkExport" name="checkExport" onclick="modExport()">
+                        <span class="slider round"></span>
+                    </label>
+                </th>
+            </tr>
+        </thead>
+        <tbody id='episodes'>
+            {% for unEpisode in episodes %}
+            <tr>
+                <th style="text-align: center; vertical-align: middle;">{{unEpisode.nom}}</th>
+                <th style="text-align: center; vertical-align: middle;">{{unEpisode.datePremDiff|date("d/m/Y")}}</th>
+                {% if not id is defined %}
+                    <th style="text-align: center; vertical-align: middle;">{{unEpisode.saison.serie.nom}}</th>
+                {% endif %}
+                <th style="text-align: center; vertical-align: middle;"> {{unEpisode.saison.numero}} </th>                 
+                <th style="text-align: center; vertical-align: middle;">
+                    <button type="button" class="btn btn-warning"  name="{{unEpisode.id}}" id="{{unEpisode.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
+                    onclick="modifier('{{unEpisode.id}}','{{unEpisode.nom}}','{{unEpisode.datePremDiff|date("Y-m-d")}}','{{unEpisode.resume}}','{{unEpisode.saison.serie.id}}','{{unEpisode.saison.numero}}')"> 
+                        Modifier
+                    </button>
+                    <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unEpisode.id}}')">Supprimer</button>
+                </th>
+                <th style="text-align: center; vertical-align: middle;">
+                    <input type="checkbox" id='{{unEpisode.id}}' name="{{unEpisode.id}}">
+                </th>
+            </tr>
+            {% endfor %}   
+        </tbody>
+    </table>
     <form  method="get" id="form">
-        <table class="table table-striped table-hover table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th style="text-align: center; vertical-align: middle; " >Nom <a class="link-primary" id="sort_nom">Default</a></th>
-                    <th style="text-align: center; vertical-align: middle;">Date de diffusion <a class="link-primary" id="sort_date">Default</a></th>
-                    {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">Serie <a class="link-primary" id="sort_serie">Default</a></th>
-                    {% endif %}
-                    <th style="text-align: center; vertical-align: middle;">Saison <a class="link-primary" id="sort_saison">Default</a></th>
-                    <th style="text-align: center; vertical-align: middle;" >                         
-                        <button type="button" class="btn btn-success"  name="ajout" id="ajout" data-bs-toggle="modal" data-bs-target="#modal_modifier"
-                        onclick="modifier()"> 
-                            Ajouter un épisode
-                        </button>
-                        <button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#modal_supprimer"  onclick="supprimer()">Supprimer plusieurs épisodes</button>
-                        {% if id is defined %}
-                            <a class="btn btn-primary" href="{{path('gerer_serie')}}" type="button">Retour</a>
-                        {% endif %}
-                        
-                        <button type="button" class="btn btn-primary"  name="addSModal" id="addSModal" data-bs-toggle="modal" data-bs-target="#modal_episodes_add"> 
-                            Ajouter plusieurs épisode
-                        </button>
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;" width="150px">
-                        &nbsp;
-                        <label for="checkall">
-                            <input type="checkbox" id='checkall' name="checkall" > Tout cocher
-                        </label>                        
-                    </th>
-                </tr>
-                <tr>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="text" id="titre" name="titre">
-                    </th>
-                    
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="date" id="dateStart" name="dateStart">
-                        <input type="date" id="dateEnd" name="dateEnd">
-                    </th>
-                    {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;"> 
-                            <select id="serieFiltre" class="form-select">
-                            <option value="">Vieullez sélectionner une série</option>
-                                {% for uneSerie in series %}
-                                    <option value="{{uneSerie.id}}">{{uneSerie.nom}}</option>
-                                {% endfor %}
-                            </select>
-                        </th>
-                    {% endif %}
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="number" id="saisonFiltre" name="saisonFiltre" min="1">
-                    </th>
-                    
-                    <th style="text-align: center; vertical-align: middle;">
-                        <button type="button" class="btn btn-secondary"  name="extract" id="extract" data-bs-toggle="modal" data-bs-target="#modal_supprimer"
-                        onclick="exporter()"> 
-                            Exporter un Episode
-                        </button>
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <label class="switch">
-                            <input type="checkbox" id="checkExport" name="checkExport" onclick="modExport()">
-                            <span class="slider round"></span>
-                        </label>
-                    </th>
-                    
-                </tr>
-            </thead>
-            <tbody id='episodes'>
-                
-                {% for unEpisode in episodes %}
-                <tr>
-                    <th style="text-align: center; vertical-align: middle;">{{unEpisode.nom}}</th>
-                    <th style="text-align: center; vertical-align: middle;">{{unEpisode.datePremDiff|date("d/m/Y")}}</th>
-                    {% if not id is defined %}
-                        <th style="text-align: center; vertical-align: middle;">{{unEpisode.saison.serie.nom}}</th>
-                    {% endif %}
-                    <th style="text-align: center; vertical-align: middle;"> {{unEpisode.saison.numero}} </th>                 
-                    <th style="text-align: center; vertical-align: middle;">
-                        <button type="button" class="btn btn-warning"  name="{{unEpisode.id}}" id="{{unEpisode.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
-                        onclick="modifier('{{unEpisode.id}}','{{unEpisode.nom}}','{{unEpisode.datePremDiff|date("Y-m-d")}}','{{unEpisode.resume}}','{{unEpisode.saison.serie.id}}','{{unEpisode.saison.numero}}')"> 
-                            Modifier
-                        </button>
-                        <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unEpisode.id}}')">Supprimer</button>
-                    </th>
-                    <th style="text-align: center; vertical-align: middle;">
-                        <input type="checkbox" id='{{unEpisode.id}}' name="{{unEpisode.id}}">
-                    </th>
-                </tr>
-                
-                {% endfor %}   
-            </tbody>
-        </table>
         <div class="modal fade" id="modal_supprimer" tabindex="-1" data-bs-keyboard="true" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
             <div class="modal-dialog" >
                 <div class="modal-content">

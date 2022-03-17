@@ -109,7 +109,7 @@ class ActeurController extends AbstractController
             $entityManager->persist($acteur);
             $entityManager->flush();
 
-            return $this->redirectToRoute('gerer_acteur');
+            return $this->redirectToRoute('gerer_acteurs');
             
         }
        
