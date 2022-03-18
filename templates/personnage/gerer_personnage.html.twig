@@ -301,41 +301,39 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         inputMax=document.getElementById('maxPerso')
         nbPerso=parseInt(inputMax.getAttribute('value'))
         inputMax.setAttribute('value',nbPerso+1)
-        balise=document.getElementById('persoS')
-        row=document.getElementById()
+        balise=document.getElementById('row_0')
+
+        row=balise.cloneNode(true)
         row.setAttribute('id',"row_"+nbPerso)
 
        
+        colNom=row.children[0]
         
-        
-        
-        colNom=document.createElement('th')
-        colNom.style="text-align: center; vertical-align: middle;"
-        
-        inputNom=document.createElement('input')
-        inputNom.type="text"
+        inputNom=colNom.children[0]
         inputNom.setAttribute('id',"inputNom_"+nbPerso)
         inputNom.setAttribute('name',"inputNom_"+nbPerso)
-
-        colNom.appendChild(inputNom)
+        inputNom.value=""
 
         
-        colActeur=document.createElement('th')
-        colActeur.style="text-align: center; vertical-align: middle;"
-        select=addSelect('inputActeur_0',nbPerso)
-        colActeur.appendChild(select)
+
         
-        colSerie=document.createElement('th')
-        colSerie.style="text-align: center; vertical-align: middle;"
-        select=addSelect('inputSerie_0',nbPerso)
-        colSerie.appendChild(select)
+        colActeur=row.children[1]
+        select=colActeur.children[0]
+        select.setAttribute('id','inputActeur_'+nbPerso)
+        select.setAttribute('name','inputActeur_'+nbPerso)
+        
+        
+        
+        colSerie=row.children[2]
+        
+        selectSerie=colSerie.children[0]
+        selectSerie.setAttribute('id','inputSerie_'+nbPerso)
+        selectSerie.setAttribute('name','inputSerie_'+nbPerso)
 
 
-        row.appendChild(colNom)
-        row.appendChild(colActeur)
-        row.appendChild(colSerie)
-        balise.appendChild(row)
-        console.log(row)
+        
+        document.getElementById('persoS').appendChild(row)
+        
         
         
     });
@@ -355,25 +353,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
         }
     })
     
-    function addSelect(cible,nbPerso){ 
-        selectBase=document.getElementById(cible)
-        select=document.createElement('select')
-        select.setAttribute('class',"form-select")
-        if(cible=='inputActeur_0'){
-            select.setAttribute('id','inputActeur_'+nbPerso)
-            select.setAttribute('name','inputActeur_'+nbPerso)  
-        }
-        else{
-            select.setAttribute('id','inputSerie_'+nbPerso)
-            select.setAttribute('name','inputSerie_'+nbPerso)  
-        }
-        
-        
-        for (i = 0; i < selectBase.options.length; i++) {
-            select[select.options.length]=new Option(selectBase.options[i].label,selectBase.options[i].value)
-        }
-        return select
-    }
+    
     $('#serieFiltre').change(function(e){
         
         

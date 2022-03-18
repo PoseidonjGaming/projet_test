@@ -91,7 +91,25 @@ function exporter(){
     document.getElementById('pModalAutre').appendChild(input)
     
 }
-
+function addSelect(cible,nbPerso){ 
+    selectBase=document.getElementById(cible)
+    select=document.createElement('select')
+    select.setAttribute('class',"form-select")
+    if(cible=='inputActeur_0'){
+        select.setAttribute('id','inputActeur_'+nbPerso)
+        select.setAttribute('name','inputActeur_'+nbPerso)  
+    }
+    else{
+        select.setAttribute('id','inputSerie_'+nbPerso)
+        select.setAttribute('name','inputSerie_'+nbPerso)  
+    }
+    
+    
+    for (i = 0; i < selectBase.options.length; i++) {
+        select[select.options.length]=new Option(selectBase.options[i].label,selectBase.options[i].value)
+    }
+    return select
+}
 function verif(e){
     bool=true
     

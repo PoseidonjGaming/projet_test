@@ -355,6 +355,7 @@
         
         inputNom.setAttribute('id',"inputNom_"+nbSerie)
         inputNom.setAttribute('name',"inputNom_"+nbSerie)
+        inputNom.value=""
 
         
 
@@ -365,6 +366,7 @@
     
         inputResume.setAttribute('id',"inputResume_"+nbSerie)
         inputResume.setAttribute('name',"inputResume_"+nbSerie)
+        inputResume.value=""
         
     
 
@@ -375,6 +377,7 @@
         
         inputDate.setAttribute('id',"inputDate_"+nbSerie)
         inputDate.setAttribute('name',"inputDate_"+nbSerie)
+        inputDate.value=""
 
         
         
@@ -384,6 +387,7 @@
     
         inputSaison.setAttribute('id',"inputSaison_"+nbSerie)
         inputSaison.setAttribute('name',"inputSaison_"+nbSerie)
+        inputSaison.value=""
         
 
         colFichier=row.children[4]
@@ -392,14 +396,16 @@
         
         inputFile.setAttribute('id',"inputFile_"+nbSerie)
         inputFile.setAttribute('name',"inputFile_"+nbSerie)
+        inputFile.value=""
 
         colBa=row.children[5]
         
-        inputNom=colBa.children[0]
-        inputNom.setAttribute('id',"inputURL_"+nbSerie)
-        inputNom.setAttribute('name',"inputURL_"+nbSerie)
+        inputBa=colBa.children[0]
+        inputBa.setAttribute('id',"inputURL_"+nbSerie)
+        inputBa.setAttribute('name',"inputURL_"+nbSerie)
+        inputBa.value=""
 
-        colBa.appendChild(inputNom)
+        
         
         colPerso=row.children[6]
         
