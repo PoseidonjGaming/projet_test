@@ -95,9 +95,11 @@ class EpisodeController extends AbstractController
     {
         $tab=array_keys($_GET);
         $entityManager=$this->getDoctrine()->getManager();
+        dump($_GET);
+        $exclude=["titre","dateStart","dateEnd","saisonFiltre","checkExport","type"];
         foreach($tab as $int){
             
-            if($int != "checkall"){
+            if(!in_array($int,$exclude)){
                 $episode=$entityManager->getRepository(Episode::class)->findUnEpisode($int);
                 $id=$episode->getSaison()->getId();
                 $entityManager->remove($episode);
@@ -108,7 +110,7 @@ class EpisodeController extends AbstractController
 
             
         }
-        return $this->redirectToRoute('gerer_episode',array('id'=> $id));
+        return $this->redirectToRoute('gerer_episodes');
     }
 
     /**
@@ -143,6 +145,7 @@ class EpisodeController extends AbstractController
            
             $episode->setSaison($saison);
             $entityManager = $this->getDoctrine()->getManager();
+
             if($episode->getId()==null && !isset($_POST['last_season']) && (count($saison->getEpisodes())+1)>intval($saison->getNbEpisode())){
                 $saison->setNbEpisode($saison->getNbEpisode()+1);
                 
@@ -209,9 +212,17 @@ class EpisodeController extends AbstractController
             $repSaison=$this->getDoctrine()->getRepository(Saison::class);
             $saison=$repSaison->findUneSaisonByNum($_POST['saison'],$_POST['serie']);
             
-            
+            dump($_POST,count($this->getDoctrine()->getRepository(Serie::class)->findUneSerie($_POST['serie'])->getSaisons()));
             $entityManager = $this->getDoctrine()->getManager();
-            if($episode->getId()==null && !isset($_POST['last_season']) && (count($saison->getEpisodes())+1)>intval($saison->getNbEpisode())){
+            if($saison==null){
+                $saisonNext=new Saison();
+                $saisonNext->setNbEpisode(1);
+                $saisonNext->setNumero(count($this->getDoctrine()->getRepository(Serie::class)->findUneSerie($_POST['serie'])->getSaisons())+1);
+                $saisonNext->setSerie($this->getDoctrine()->getRepository(Serie::class)->findUneSerie($_POST['serie']));
+                $entityManager->persist($saisonNext);
+                $episode->setSaison($saisonNext);
+            }
+            elseif($episode->getId()==null && !isset($_POST['last_season']) && (count($saison->getEpisodes())+1)>intval($saison->getNbEpisode())){
                 $saison->setNbEpisode($saison->getNbEpisode()+1);
                 
             }
@@ -220,6 +231,7 @@ class EpisodeController extends AbstractController
                 $saisonNext->setNbEpisode(1);
                 $saisonNext->setSerie($saison->getSerie());
                 $entityManager->persist($saisonNext);
+                $episode->setSaison($saisonNext);
             }
 
             

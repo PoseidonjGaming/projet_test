@@ -68,7 +68,7 @@
                                 </a>     
                             </li>
                             <li class="nav-item">
-                                <a type="button" class="nav-link"  name="export" id="export" data-bs-toggle="modal" data-bs-target="#modal_export"> 
+                                <a type="button" class="nav-link dropdown-toggle"  name="export" id="export" data-bs-toggle="modal" data-bs-target="#modal_export"> 
                                     Expoter des données
                                 </a>     
                             </li>
@@ -79,7 +79,32 @@
                         {% if app.user %}            
                             <a type="button" class="btn btn-danger me-2" href="{{path('app_logout')}}">Déconnexion</a>
                         {% else %}
-                            <a type="button" class="btn btn-success me-2" href="{{path('app_login')}}">Connexion</a>
+                        <ul class="dropdown" >
+                            <a type="button" class="btn btn-success me-2" data-bs-toggle="dropdown" aria-expanded="false">Connexion</a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownAdminButton" id="dropdown-login" style="width: 500px">
+                                <form  method="post">
+                                    {% if app.user %}
+                                        <div class="mb-3">
+                                            Vous êtes déjà connecté en tant que {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+                                        </div>
+                                    {% endif %}
+
+                                    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+                                    <label for="inputNom">Nom</label>
+                                    <input type="text"  name="nom" id="inputNom" class="form-control" autocomplete="username" required autofocus>
+                                    <label for="inputPassword">Password</label>
+                                    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+
+                                    <input type="hidden" name="_csrf_token"
+                                        value="{{ csrf_token('authenticate') }}">
+                                    <p></p>
+                                    <button class="btn btn-lg btn-primary" type="submit">
+                                        Connexion
+                                    </button>
+                                </form>
+                            </div> 
+                        </ul>
+                            
                         {% endif %}  
                     </div>
                 </div>

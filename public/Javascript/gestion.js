@@ -121,7 +121,13 @@ function trie(col, reverse){
             sortListe.push(e[col])
         }
     })
-    sortListe.sort()
+    if(typeof sortListe[0]=="number"){
+        sortListe.sort(function(a,b){return a-b})
+    }
+    else{
+        sortListe.sort()
+    }
+    
     if(reverse){
         sortListe.reverse()
     }
@@ -133,7 +139,7 @@ function trie(col, reverse){
             }
         })
     })
-   
+    console.log(window.ListeFitre)
     modif(0,10,1,window.ListeFitre)
 }
 
