@@ -56,19 +56,23 @@ class EpisodeController extends AbstractController
                     $saison->setNumero($_POST['inputSaison_'.$i]);
                     $saison->setNbEpisode(1);
                     $entityManager->persist($saison);
+                    $entityManager->flush();
                 }
                 else{
                     $saison->setNbEpisode($saison->getNbEpisode()+1);
                 }
+                
                 $episode->setSaison($saison);
                 
             }
             
             $entityManager->persist($episode);
+            $entityManager->flush();
             
         }
-        $entityManager->flush();
+        
         return $this->redirectToRoute('gerer_episodes');
+        
     }
 
     /**
@@ -96,7 +100,7 @@ class EpisodeController extends AbstractController
         $tab=array_keys($_GET);
         $entityManager=$this->getDoctrine()->getManager();
         dump($_GET);
-        $exclude=["titre","dateStart","dateEnd","saisonFiltre","checkExport","type"];
+        $exclude=["titre","dateStart","dateEnd","saisonFiltre","checkExport","type","checkall"];
         foreach($tab as $int){
             
             if(!in_array($int,$exclude)){
@@ -212,7 +216,7 @@ class EpisodeController extends AbstractController
             $repSaison=$this->getDoctrine()->getRepository(Saison::class);
             $saison=$repSaison->findUneSaisonByNum($_POST['saison'],$_POST['serie']);
             
-            dump($_POST,count($this->getDoctrine()->getRepository(Serie::class)->findUneSerie($_POST['serie'])->getSaisons()));
+            
             $entityManager = $this->getDoctrine()->getManager();
             if($saison==null){
                 $saisonNext=new Saison();
@@ -224,6 +228,8 @@ class EpisodeController extends AbstractController
             }
             elseif($episode->getId()==null && !isset($_POST['last_season']) && (count($saison->getEpisodes())+1)>intval($saison->getNbEpisode())){
                 $saison->setNbEpisode($saison->getNbEpisode()+1);
+                
+                $episode->setSaison($saison);
                 
             }
             elseif(isset($_POST['last_season'])){
