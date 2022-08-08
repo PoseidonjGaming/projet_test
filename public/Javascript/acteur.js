@@ -31,6 +31,7 @@ function supprimer(Id){
         document.getElementById('form').action='/supprimer_acteur/'+Id;
     }
 }
+
 function exporter(){
     document.getElementById('pModalAutre').innerHTML="Exporter ces acteurs";
     document.getElementById('supModalLongTitle').innerHTML="Exportation"
@@ -85,13 +86,14 @@ function filtre(min,max){
 
 
         colButton=window.buttonsRow.cloneNode(true)
+        console.log(colButton)
         colButton.children[0].setAttribute('onclick','modifier("'+e['id']+'","'+e['nom']+'","'+e['prenom']+'")')
         colButton.children[0].setAttribute('id','modif_"'+e['id'])
         colButton.children[0].setAttribute('name','modif_"'+e['id'])
         colButton.children[1].setAttribute('onclick','supprimer("'+e['id']+'")')
         colButton.children[1].setAttribute('id','sup_"'+e['id'])
         colButton.children[1].setAttribute('name','sup_"'+e['id'])
-        colButton.children[1].setAttribute('href','gerer_episode/'+e['id'])
+        colButton.children[2].href='gerer_episode/'+e['id']
 
         row.appendChild(colButton)
        

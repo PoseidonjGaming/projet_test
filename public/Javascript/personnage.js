@@ -141,7 +141,7 @@ function filtre(min,max){
             
         addCol(e,row,window.ListeFitre,min,max)
 
-
+        
         colButton=window.buttonsRow.cloneNode(true)
         colButton.children[0].setAttribute('onclick','modifier("'+e['id']+'","'+e['nom']+'","'+e['serieId']+'","'+e['acteurId']+'")')
         colButton.children[0].setAttribute('id','modif_"'+e['id'])

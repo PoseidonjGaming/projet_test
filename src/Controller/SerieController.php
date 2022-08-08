@@ -17,7 +17,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
 use App\Service\Aide;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -153,12 +152,14 @@ class SerieController extends AbstractController
         $error=' ';
         
         if($form->isSubmitted() && $form->isValid()){
-            
-            if($form->get('photo')->getData()!= null && $searchSerie==null){
+            $dumpPhoto=$form->get('photo')->getData();
+           
+            if($form->get('photo')->getData()!= null){
                 $images=$form->get('photo')->getData();
                 $imgExt=$images->guessClientExtension();
                 $ext=array('png','jpeg','jpg','gif','svg');
                 $fileName =$images->getClientOriginalName();
+                dump(in_array($imgExt,$ext,$strict=false));
                 if(in_array($imgExt,$ext,$strict=false)){
                     $images->move($this->getParameter('photo_directory').'/photo',$fileName);
                 }
@@ -184,6 +185,7 @@ class SerieController extends AbstractController
             $entityManager->flush();
             
             return $this->redirectToRoute('gerer_serie');
+            
         }
        
         
@@ -285,34 +287,5 @@ class SerieController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/menuJSON", name="menuJSON")
-     */
-    public function menuJSON(): JsonResponse
-    {
-        
-        if($_GET['type']=="episode"){
-            $items=$this->getDoctrine()->getRepository(Episode::class)->findAll();
-        }
-        elseif($_GET['type']=='serie'){
-            $items=$this->getDoctrine()->getRepository(Serie::class)->findAll();
-        }
-        elseif($_GET['type']=='acteur'){
-            $items=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
-        }
-        else{
-            $items=$this->getDoctrine()->getRepository(Personnage::class)->findAll();
-        }
-        
-        
-        $data = [];
-        foreach($items as $unItem){
-            $data[]=$unItem->dataJson();
-        }
-        
-        
-        return new JsonResponse($data, Response::HTTP_OK);
-
-       
-    }
+   
 }

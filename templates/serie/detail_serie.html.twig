@@ -51,49 +51,48 @@
                     </div>
                 {% endfor %}
             </div>
-        </div>
-    </div>
-    </br>
-    <div class="row"> 
-        <div class="accordion" id="accEp">
-            {% for uneSaison in serie.saisons %}  
-                    {% for unEpisode in uneSaison.episodes %}
-                        <div class="collapse" id="collapseEpisode{{unEpisode.id}}" data-bs-parent="#accEp">
-                            <div class="card card-body">
-                                <p>Titre: {{unEpisode.nom}}</p>
-                                <p>Episode diffusé le {{unEpisode.datePremDiff|date("d/m/Y")}}</p>
-                                <p>Résumé: </p>
-                                <p>{{unEpisode.resume}}</p>
-                            </div>
-                        </div>     
+            <div class="row"> 
+                <div class="accordion" id="accEp">
+                    {% for uneSaison in serie.saisons %}  
+                            {% for unEpisode in uneSaison.episodes %}
+                                <div class="collapse" id="collapseEpisode{{unEpisode.id}}" data-bs-parent="#accEp">
+                                    <div class="card card-body">
+                                        <p>Titre: {{unEpisode.nom}}</p>
+                                        <p>Episode diffusé le {{unEpisode.datePremDiff|date("d/m/Y")}}</p>
+                                        <p>Résumé: </p>
+                                        <p>{{unEpisode.resume}}</p>
+                                    </div>
+                                </div>     
+                            {% endfor %}
                     {% endfor %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="modal fade" id="modal_BandeAnnonce" tabindex="-1" data-bs-keyboard="true" 
-    aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >  
-        <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle"> Bande d'annonce</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" style="height:630px">
-                       
-                            {% if youtube=='https://youtu' %}
-                                <iframe width="100%" height="100%" src="{{url}}" 
-                                    title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; 
-                                    clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                                </iframe>
-                            {% else %}
-                                <p>La bande annonce est introuvable</p>
-                            {% endif %} 
-                                      
-                    </div>
                 </div>
-           
+            </div>
+            <div class="modal fade" id="modal_BandeAnnonce" tabindex="-1" data-bs-keyboard="true" 
+            aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >  
+                <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle"> Bande d'annonce</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" style="height:630px">
+                            
+                                    {% if youtube=='https://youtu' %}
+                                        <iframe width="100%" height="100%" src="{{url}}" 
+                                            title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; 
+                                            clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                        </iframe>
+                                    {% else %}
+                                        <p>La bande annonce est introuvable</p>
+                                    {% endif %} 
+                                            
+                            </div>
+                        </div>
+                
+                </div>
+            </div>
         </div>
-    </div>
+    </div>    
 </div>
 {% endblock %}

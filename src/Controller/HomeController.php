@@ -16,7 +16,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Service\Aide;
-
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class HomeController extends AbstractController
 {
@@ -29,7 +29,7 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @isGranted("role_admin")
+     * @IsGranted("ROLE_admin")
      * @Route("/generationuser", name="generationuser")
      */
     public function generationUser(UserPasswordEncoderInterface $encoder): Response
@@ -40,12 +40,16 @@ class HomeController extends AbstractController
         //var_dump($encoded);
         $user->setNom("Admin");
         $user->setPassword($encoded);
-        $user->setRoles(["role_admin"]);
+        $user->setRoles(["ROLE_super_admin"]);
         dump($user);
         $em->persist($user);
         $em->flush();
         
-        return $this->redirectToRoute('serie');
+        //return $this->redirectToRoute('serie');
+        return $this->render('serie/index.html.twig', [
+            'serie' => $lesSerie,
+           
+        ]);
     }
 
    
@@ -189,6 +193,35 @@ class HomeController extends AbstractController
         ]);*/
     }
 
-    
+     /**
+     * @Route("/menuJSON", name="menuJSON")
+     */
+    public function menuJSON(): JsonResponse
+    {
+        
+        if($_GET['type']=="episode"){
+            $items=$this->getDoctrine()->getRepository(Episode::class)->findAll();
+        }
+        elseif($_GET['type']=='serie'){
+            $items=$this->getDoctrine()->getRepository(Serie::class)->findAll();
+        }
+        elseif($_GET['type']=='acteur'){
+            $items=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
+        }
+        else{
+            $items=$this->getDoctrine()->getRepository(Personnage::class)->findAll();
+        }
+        
+        
+        $data = [];
+        foreach($items as $unItem){
+            $data[]=$unItem->dataJson();
+        }
+        
+        
+        return new JsonResponse($data, Response::HTTP_OK);
+
+       
+    }
     
 }

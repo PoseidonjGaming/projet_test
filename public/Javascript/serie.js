@@ -32,9 +32,7 @@ function verif(e){
 }
 
 
-function filtre(min,max,mod){
-    
-    
+function filtre(min,max,mod){   
     deleteRow()    
     window.ListeFitre.forEach(function(e){
         
@@ -51,10 +49,12 @@ function filtre(min,max,mod){
         colButton.children[0].setAttribute('onclick','modifier("'+e['nom']+'","'+e['date']['date'].substring(0,10)+'","'+e['resume']+'","'+e['Ba']+'","'+e['affiche']+'","'+e['id']+'")')
         colButton.children[0].setAttribute('id','modif_"'+e['id'])
         colButton.children[0].setAttribute('name','modif_"'+e['id'])
+
         colButton.children[1].setAttribute('onclick','supprimer("'+e['id']+'")')
         colButton.children[1].setAttribute('id','sup_"'+e['id'])
         colButton.children[1].setAttribute('name','sup_"'+e['id'])
-        colButton.children[1].setAttribute('href','gerer_episode/'+e['id'])
+        colButton.children[2].href="gerer_episode/"+e["id"]
+        console.log(colButton)
 
         row.appendChild(colButton)
         if(window.boolExport){

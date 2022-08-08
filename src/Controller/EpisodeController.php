@@ -39,6 +39,9 @@ class EpisodeController extends AbstractController
             if($_POST['inputResume_'.$i]!=''){
                 $episode->setResume($_POST['inputResume_'.$i]);
             }
+            elseif($_POST['inputResume_'.$i]==null){
+                $episode->setResume("résumé manquant");
+            }
             if($_POST['inputDate_'.$i]!=''){
                 $date=new \DateTime($_POST['inputDate_'.$i]);
                 

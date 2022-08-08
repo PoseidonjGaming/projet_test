@@ -55,6 +55,11 @@ class Serie
      */
     private $personnages;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $type;
+
     public function __construct()
     {
         $this->saisons = new ArrayCollection();
@@ -187,6 +192,19 @@ class Serie
     }
 
    
+   
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
     public function dataJson(){
         $nbEp=0;
         foreach($this->getSaisons() as $uneSaison){
@@ -203,10 +221,10 @@ class Serie
             'affiche'=>$this->getAffiche(),
             'Ba'=>$this->getUrlBa(),
             'saison'=>count($this->getSaisons()),
-            'episodes'=>$nbEp
+            'episodes'=>$nbEp,
+            'type'=>$this->getType()
         ];
         return $data;
     }
-
     
 }

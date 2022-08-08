@@ -182,6 +182,7 @@
                                     <th style="text-align: center; vertical-align: middle;">Affiche</th>
                                     <th style="text-align: center; vertical-align: middle;">Lien de la Bande Annonce</th>
                                     <th style="text-align: center; vertical-align: middle;">Personnage</th>
+                                    <th style="text-align: center; vertical-align: middle;">Type</th>
                                 </tr>
                             </thead>
                             <tbody id="persoS">
@@ -280,7 +281,7 @@
             success: function(element){
                 
                 window.ListeBase=element
-                window.exception=['id',"resume",'affiche','Ba']
+                window.exception=['id',"resume",'affiche','Ba','type']
                 
                 document.getElementById('titre').value=""
                 window.nom=""
