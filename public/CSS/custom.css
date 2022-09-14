@@ -34,7 +34,7 @@
 
 
 .dropdown:hover .dropdown_item{
-    display: block;
+    display:block;
 }
 
 .dropdown_item a:hover{
