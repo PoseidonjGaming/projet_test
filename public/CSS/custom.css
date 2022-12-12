@@ -22,6 +22,7 @@
     background-color: white;
     min-width: 50px;
     border-radius: 10px;
+	
 }
 
 .dropdown_item a{
@@ -29,12 +30,14 @@
     padding: 20px;
     text-decoration: none;
     display: block;
+	position:absolute;
 }
 
 
 
 .dropdown:hover .dropdown_item{
     display:block;
+	position:absolute;
 }
 
 .dropdown_item a:hover{

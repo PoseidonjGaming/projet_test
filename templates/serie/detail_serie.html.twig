@@ -36,6 +36,10 @@
                         aria-controls="collapseSaison{{uneSaison.numero}}"> Saison {{uneSaison.numero}}</button>
                 {% endfor %}
             </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
             <div class="accordion" id="accSaison">
                 {% for uneSaison in serie.saisons %}
                     <div class="collapse" id="collapseSaison{{uneSaison.numero}}" data-bs-parent="#accSaison">
