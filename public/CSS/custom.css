@@ -22,7 +22,7 @@
     background-color: white;
     min-width: 50px;
     border-radius: 10px;
-	
+    right:0;
 }
 
 .dropdown_item a{
@@ -37,11 +37,10 @@
 
 .dropdown:hover .dropdown_item{
     display:block;
-	position:absolute;
 }
 
 .dropdown_item a:hover{
+    display: block;
     background-color: rgb(210, 210, 210);
     border-radius: 10px;
 }
-

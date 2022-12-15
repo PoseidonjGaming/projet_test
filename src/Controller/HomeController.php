@@ -47,7 +47,6 @@ class HomeController extends AbstractController
         
         //return $this->redirectToRoute('serie');
         return $this->render('serie/index.html.twig', [
-            'serie' => $lesSerie,
            
         ]);
     }
