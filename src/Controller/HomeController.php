@@ -29,14 +29,14 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_admin")
+     * 
      * @Route("/generationuser", name="generationuser")
      */
     public function generationUser(UserPasswordEncoderInterface $encoder): Response
     {
         $em=$this->getDoctrine()->getManager();
         $user= new User();
-        $encoded= $encoder->encodePassword($user,"1234");
+        $encoded= $encoder->encodePassword($user,"P@ssw0rd");
         //var_dump($encoded);
         $user->setNom("Admin");
         $user->setPassword($encoded);
@@ -44,10 +44,10 @@ class HomeController extends AbstractController
         dump($user);
         $em->persist($user);
         $em->flush();
-        
+        $this->route;
         //return $this->redirectToRoute('serie');
         return $this->render('serie/index.html.twig', [
-            'serie' => $lesSerie,
+            'serie' => $lesSerie
            
         ]);
     }
@@ -219,6 +219,51 @@ class HomeController extends AbstractController
         }
         
         
+        return new JsonResponse($data, Response::HTTP_OK);
+
+       
+    }
+
+     /**
+     * @Route("/menuJSONExport", name="menuJSONExport")
+     */
+    public function menuJSONExport(): JsonResponse
+    {
+        
+        if($_GET['type']=="episode"){
+            $items=$this->getDoctrine()->getRepository(Episode::class)->findAll();
+        }
+        elseif($_GET['type']=='serie'){
+            $items=$this->getDoctrine()->getRepository(Serie::class)->findAll();
+        }
+        elseif($_GET['type']=='acteur'){
+            $items=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
+        }
+        else{
+            $items=$this->getDoctrine()->getRepository(Personnage::class)->findAll();
+        }
+        foreach($items as $unItem){
+            $temp=$unItem;
+            $personnages=$this->getDoctrine()->getRepository(Personnage::class)->findPersonnages($unItem->getId());
+            foreach($personnages as $perso)
+            {
+                $temp->addPersonnage($perso);
+            }
+            var_dump($unItem->getPersonnages()->count());
+            $items[$unItem->getId()]=$temp;
+        }
+        
+        $data = [];
+        foreach($items as $unItem){
+            
+            $data[$unItem->getId()]=$unItem->dataJsonExport();
+        }
+        
+        
+        /*return $this->render('home/test2.html.twig', [
+            
+          
+        ]);*/
         return new JsonResponse($data, Response::HTTP_OK);
 
        

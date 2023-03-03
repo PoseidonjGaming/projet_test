@@ -106,4 +106,14 @@ class Acteur
         ];
         return $data;
     }
+
+    public function dataJsonExport(){
+        $data[$this->getId()]=[
+            'prenom'=>$this->getPrenom(),
+            'nom'=>$this->getNom(),
+            'personnages'=>$this->getPersonnages()
+            
+        ];
+        return $data;
+    }
 }

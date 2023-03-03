@@ -60,10 +60,18 @@ class Serie
      */
     private $type;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Note::class, mappedBy="serie")
+     */
+    private $notes;
+
+  
+
     public function __construct()
     {
         $this->saisons = new ArrayCollection();
         $this->personnages = new ArrayCollection();
+        $this->notes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -226,5 +234,37 @@ class Serie
         ];
         return $data;
     }
+
+    /**
+     * @return Collection|Note[]
+     */
+    public function getNotes(): Collection
+    {
+        return $this->notes;
+    }
+
+    public function addNote(Note $note): self
+    {
+        if (!$this->notes->contains($note)) {
+            $this->notes[] = $note;
+            $note->setSerie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNote(Note $note): self
+    {
+        if ($this->notes->removeElement($note)) {
+            // set the owning side to null (unless already changed)
+            if ($note->getSerie() === $this) {
+                $note->setSerie(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
     
 }
