@@ -16,11 +16,10 @@ class UserFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom')
+            ->add('username')
             ->add('password', PasswordType::class)
-            ->add('Valider', SubmitType::class,['attr' => ['class' =>'btn btn-primary']])
-            ->add('reset',ResetType::class,['attr' => ['class' =>'btn btn-primary']])
-        ;
+            ->add('Valider', SubmitType::class, ['attr' => ['class' => 'btn btn-primary']])
+            ->add('reset', ResetType::class, ['attr' => ['class' => 'btn btn-primary']]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

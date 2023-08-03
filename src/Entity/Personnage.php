@@ -3,36 +3,32 @@
 namespace App\Entity;
 
 use App\Repository\PersonnageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PersonnageRepository::class)
- */
+#[ORM\Entity(repositoryClass: PersonnageRepository::class)]
 class Personnage
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $nom;
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Acteur::class, inversedBy="personnages")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $Acteur;
+    #[ORM\ManyToMany(targetEntity: Serie::class, inversedBy: 'personnages')]
+    private Collection $serie;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Serie::class, inversedBy="personnages")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $serie;
+    #[ORM\ManyToMany(targetEntity: Acteur::class, mappedBy: 'personnages')]
+    private Collection $acteurs;
+
+    public function __construct()
+    {
+        $this->serie = new ArrayCollection();
+        $this->acteurs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -44,47 +40,61 @@ class Personnage
         return $this->nom;
     }
 
-    public function setNom(string $nom): self
+    public function setNom(string $nom): static
     {
         $this->nom = $nom;
 
         return $this;
     }
 
-    public function getActeur(): ?Acteur
-    {
-        return $this->Acteur;
-    }
-
-    public function setActeur(?Acteur $Acteur): self
-    {
-        $this->Acteur = $Acteur;
-
-        return $this;
-    }
-
-    public function getSerie(): ?Serie
+    /**
+     * @return Collection<int, Serie>
+     */
+    public function getSerie(): Collection
     {
         return $this->serie;
     }
 
-    public function setSerie(?Serie $serie): self
+    public function addSerie(Serie $serie): static
     {
-        $this->serie = $serie;
+        if (!$this->serie->contains($serie)) {
+            $this->serie->add($serie);
+        }
 
         return $this;
     }
 
-    public function dataJson(){
-        $data=[
-            'id'=>$this->getId(),
-            'nom'=>$this->getNom(),
-            'serieId'=>$this->getSerie()->getId(),
-            'serieNom'=>$this->getSerie()->getNom(),
-            'acteurId'=>$this->getActeur()->getId(),
-            'acteur'=>$this->getActeur()->getPrenom().' '.$this->getActeur()->getNom()
-           
-        ];
-        return $data;
+    public function removeSerie(Serie $serie): static
+    {
+        $this->serie->removeElement($serie);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Acteur>
+     */
+    public function getActeurs(): Collection
+    {
+        return $this->acteurs;
+    }
+
+    public function addActeur(Acteur $acteur): static
+    {
+        if (!$this->acteurs->contains($acteur)) {
+            $this->acteurs->add($acteur);
+            $acteur->addPersonnage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActeur(Acteur $acteur): static
+    {
+        if ($this->acteurs->removeElement($acteur)) {
+            $acteur->removePersonnage($this);
+        }
+
+        return $this;
     }
 }

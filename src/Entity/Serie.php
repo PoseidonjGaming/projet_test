@@ -5,62 +5,45 @@ namespace App\Entity;
 use App\Repository\SerieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=SerieRepository::class)
- * @ORM\Table(name="`serie`")
- */
+#[ORM\Entity(repositoryClass: SerieRepository::class)]
 class Serie
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $nom;
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    private $date_diff;
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dateDiff = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $resume;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $resume = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $affiche;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $affiche = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $url_ba;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $urlBa = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Saison::class, mappedBy="serie", orphanRemoval=true)
-     */
-    private $saisons;
+    #[ORM\OneToMany(mappedBy: 'serie', targetEntity: Saison::class)]
+    private Collection $saisons;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Personnage::class, mappedBy="serie", orphanRemoval=true)
-     */
-    private $personnages;
-
+    #[ORM\ManyToMany(targetEntity: Personnage::class, mappedBy: 'serie')]
+    private Collection $personnages;
 
     public function __construct()
     {
         $this->saisons = new ArrayCollection();
         $this->personnages = new ArrayCollection();
     }
+
+
 
     public function getId(): ?int
     {
@@ -72,7 +55,7 @@ class Serie
         return $this->nom;
     }
 
-    public function setNom(?string $nom): self
+    public function setNom(string $nom): static
     {
         $this->nom = $nom;
 
@@ -81,12 +64,12 @@ class Serie
 
     public function getDateDiff(): ?\DateTimeInterface
     {
-        return $this->date_diff;
+        return $this->dateDiff;
     }
 
-    public function setDateDiff(\DateTimeInterface $date_diff): self
+    public function setDateDiff(?\DateTimeInterface $dateDiff): static
     {
-        $this->date_diff = $date_diff;
+        $this->dateDiff = $dateDiff;
 
         return $this;
     }
@@ -96,7 +79,7 @@ class Serie
         return $this->resume;
     }
 
-    public function setResume(?string $resume): self
+    public function setResume(?string $resume): static
     {
         $this->resume = $resume;
 
@@ -108,7 +91,7 @@ class Serie
         return $this->affiche;
     }
 
-    public function setAffiche(?string $affiche): self
+    public function setAffiche(?string $affiche): static
     {
         $this->affiche = $affiche;
 
@@ -117,35 +100,35 @@ class Serie
 
     public function getUrlBa(): ?string
     {
-        return $this->url_ba;
+        return $this->urlBa;
     }
 
-    public function setUrlBa(?string $url_ba): self
+    public function setUrlBa(?string $urlBa): static
     {
-        $this->url_ba = $url_ba;
+        $this->urlBa = $urlBa;
 
         return $this;
     }
 
     /**
-     * @return Collection|Saison[]
+     * @return Collection<int, Saison>
      */
     public function getSaisons(): Collection
     {
         return $this->saisons;
     }
 
-    public function addSaison(Saison $saison): self
+    public function addSaison(Saison $saison): static
     {
         if (!$this->saisons->contains($saison)) {
-            $this->saisons[] = $saison;
+            $this->saisons->add($saison);
             $saison->setSerie($this);
         }
 
         return $this;
     }
 
-    public function removeSaison(Saison $saison): self
+    public function removeSaison(Saison $saison): static
     {
         if ($this->saisons->removeElement($saison)) {
             // set the owning side to null (unless already changed)
@@ -158,57 +141,30 @@ class Serie
     }
 
     /**
-     * @return Collection|Personnage[]
+     * @return Collection<int, Personnage>
      */
     public function getPersonnages(): Collection
     {
         return $this->personnages;
     }
 
-    public function addPersonnage(Personnage $personnage): self
+    public function addPersonnage(Personnage $personnage): static
     {
         if (!$this->personnages->contains($personnage)) {
-            $this->personnages[] = $personnage;
-            $personnage->setSerie($this);
+            $this->personnages->add($personnage);
+            $personnage->addSerie($this);
         }
 
         return $this;
     }
 
-    public function removePersonnage(Personnage $personnage): self
+    public function removePersonnage(Personnage $personnage): static
     {
         if ($this->personnages->removeElement($personnage)) {
-            // set the owning side to null (unless already changed)
-            if ($personnage->getSerie() === $this) {
-                $personnage->setSerie(null);
-            }
+            $personnage->removeSerie($this);
         }
 
         return $this;
     }
 
-
-
-
-    public function dataJson()
-    {
-        $nbEp = 0;
-        foreach ($this->getSaisons() as $uneSaison) {
-            $nbEp += count($uneSaison->getEpisodes());
-        }
-        $resumeTemp = $this->getResume();
-
-
-        $data = [
-            'id' => $this->getId(),
-            'nom' => $this->getNom(),
-            'date' => $this->getDateDiff(),
-            'resume' => $this->getResume(),
-            'affiche' => $this->getAffiche(),
-            'Ba' => $this->getUrlBa(),
-            'saison' => count($this->getSaisons()),
-            'episodes' => $nbEp,
-        ];
-        return $data;
-    }
 }

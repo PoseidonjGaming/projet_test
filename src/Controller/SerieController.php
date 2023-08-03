@@ -19,273 +19,240 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Service\Aide;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use Doctrine\ORM\EntityManagerInterface;
 
 
 class SerieController extends AbstractController
 {
-    /**
-     * @Route("/serie", name="serie")
-     */
-    public function index(): Response
+    #[Route("/serie", name: "serie")]
+    public function index(EntityManagerInterface $entityManager): Response
     {
-       
-        $rep=$this->getDoctrine()->getRepository(Serie::class);  
-        $lesSerie=$rep->findAll();
-        
-        foreach($lesSerie as $serie){
-            $resume=$serie->getResume();
-            $resumeM=substr($resume, 0, 150).'...';
+
+        $rep = $entityManager->getRepository(Serie::class);
+        $lesSerie = $rep->findAll();
+
+        foreach ($lesSerie as $serie) {
+            $resume = $serie->getResume();
+            $resumeM = substr($resume, 0, 150) . '...';
             $serie->setResume($resumeM);
-            
         }
 
         return $this->render('serie/index.html.twig', [
             'serie' => $lesSerie,
-           
+
         ]);
     }
 
-    /**
-     * @Route("/ajout/series", name="ajout_series")
-     */
-    public function ajout_series(): Response
+    #[Route("/ajout/series", name: "ajout_series")]
+    public function ajout_series(EntityManagerInterface $entityManager): Response
     {
-        $entityManager = $this->getDoctrine()->getManager();
-       
-        for($i=0; $i<$_POST['maxSerie']; $i++){
-            $serie=new Serie();
 
-            if($_POST['inputNom_'.$i]!=''){
-                $serie->setNom($_POST['inputNom_'.$i]);
+        for ($i = 0; $i < $_POST['maxSerie']; $i++) {
+            $serie = new Serie();
+
+            if ($_POST['inputNom_' . $i] != '') {
+                $serie->setNom($_POST['inputNom_' . $i]);
             }
-            if($_POST['inputResume_'.$i]!=''){
-                $serie->setResume($_POST['inputResume_'.$i]);
+            if ($_POST['inputResume_' . $i] != '') {
+                $serie->setResume($_POST['inputResume_' . $i]);
             }
-            if($_POST['inputDate_'.$i]!=''){
-                $date=new \DateTime($_POST['inputDate_'.$i]);
-               
+            if ($_POST['inputDate_' . $i] != '') {
+                $date = new \DateTime($_POST['inputDate_' . $i]);
+
                 $serie->setDateDiff($date);
             }
-            if($_POST['inputSaison_'.$i]!=''){
-               
-                for($sa=0; $sa<$_POST['inputSaison_'.$i]; $sa++){
-                    $saison=new Saison();
-                    $saison->setNumero($sa+1);
-                    $saison->setNbEpisode(0);
+            if ($_POST['inputSaison_' . $i] != '') {
+
+                for ($sa = 0; $sa < $_POST['inputSaison_' . $i]; $sa++) {
+                    $saison = new Saison();
+                    $saison->setNumero($sa + 1);
 
                     $entityManager->persist($saison);
                     $serie->addSaison($saison);
                 }
-                
             }
-            if($_FILES['inputFile_'.$i]['name']!=''){
-                move_uploaded_file($_FILES['inputFile_'.$i]['tmp_name'],$this->getParameter('photo_directory').'/photo/'.$_FILES['inputFile_'.$i]['name']);
-                $serie->setAffiche($_FILES['inputFile_'.$i]['name']);
+            if ($_FILES['inputFile_' . $i]['name'] != '') {
+                move_uploaded_file($_FILES['inputFile_' . $i]['tmp_name'], $this->getParameter('photo_directory') . '/photo/' . $_FILES['inputFile_' . $i]['name']);
+                $serie->setAffiche($_FILES['inputFile_' . $i]['name']);
+            }
+            if ($_POST['nbPerso_' . $i] != '') {
+                for ($p = 0; $p < $_POST['nbPerso_' . $i]; $p++) {
 
-            }
-            if($_POST['nbPerso_'.$i]!=''){
-                for($p=0; $p<$_POST['nbPerso_'.$i]; $p++){
-                    
-                    $perso=$this->getDoctrine()->getRepository(Personnage::class)->findUnPersonnageByActeur($_POST['persoNom_'.$i.'_'.$p],$_POST['acteur_'.$i.'_'.$p]);
+                    $perso = $entityManager->getRepository(Personnage::class)->findUnPersonnageByActeur($_POST['persoNom_' . $i . '_' . $p], $_POST['acteur_' . $i . '_' . $p]);
                     dump($perso);
-                    if($perso==null){
-                        $perso=new Personnage();
-                        $perso->setActeur($this->getDoctrine()->getRepository(Acteur::class)->findUnActeur($_POST['acteur_'.$i.'_'.$p]));
-                        $perso->setSerie($serie);
+                    if ($perso == null) {
+                        $perso = new Personnage();
+                        $perso->addActeur($entityManager->getRepository(Acteur::class)->findUnActeur($_POST['acteur_' . $i . '_' . $p]));
+                        $perso->addSerie($serie);
                         $entityManager->persist($saison);
-                        
                     }
                 }
             }
-            if($_POST['inputURL_'.$i]!=''){
-                $serie->setUrlBa($_POST['inputURL_'.$i]);
+            if ($_POST['inputURL_' . $i] != '') {
+                $serie->setUrlBa($_POST['inputURL_' . $i]);
             }
             $entityManager->persist($serie);
-            
         }
         $entityManager->flush();
         return $this->redirectToRoute('gerer_serie');
     }
 
-    /**
-     * @Route("/detail_serie/{id}", name="detail_serie")
-     */
-    public function detail_serie($id): Response
+    #[Route("/detail_serie/{id}", name: "detail_serie")]
+    public function detail_serie($id, EntityManagerInterface $entityManager): Response
     {
-        $rep=$this->getDoctrine()->getRepository(Serie::class);
-        $serie=$rep->findUneSerie($id);
-        $url=$serie->getUrlBa();
-        $ch_url1=substr($url,0,13);
-        $ch_url3=substr($url,16);
-        $embed_url=$ch_url1."be.com"."/embed".$ch_url3;
-        
+        $rep = $entityManager->getRepository(Serie::class);
+        $serie = $rep->findUneSerie($id);
+        $url = $serie->getUrlBa();
+        $ch_url1 = substr($url, 0, 13);
+        $ch_url3 = substr($url, 16);
+        $embed_url = $ch_url1 . "be.com" . "/embed" . $ch_url3;
+
 
         return $this->render('serie/detail_serie.html.twig', [
-            'serie'=>$serie,
-            'url'=>$embed_url,
-            'youtube'=>$ch_url1
+            'serie' => $serie,
+            'url' => $embed_url,
+            'youtube' => $ch_url1
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/gerer_serie", name="gerer_serie")
-    */
-    public function gererserie(Request $request): Response
-    {         
-        $rep=$this->getDoctrine()->getRepository(Serie::class);
-        $lesSerie=$rep->findAll();
-        
+    #[Route("/gerer_serie", name: "gerer_serie")]
+    public function gererserie(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $rep = $entityManager->getRepository(Serie::class);
+        $lesSerie = $rep->findAll();
+
         $serie = new Serie();
-        
-        if(isset($_POST['ID'])){
-            $searchSerie=$rep->findUneSerie($_POST['ID']);
-            if($searchSerie!=null){
-                $serie=$searchSerie;
+
+        if (isset($_POST['ID'])) {
+            $searchSerie = $rep->findUneSerie($_POST['ID']);
+            if ($searchSerie != null) {
+                $serie = $searchSerie;
             }
         }
-        
-        $acteurs=$this->getDoctrine()->getRepository(Acteur::class)->findAll(); 
-        $form = $this->createForm(SerieFormType::class,$serie);
+
+        $acteurs = $entityManager->getRepository(Acteur::class)->findAll();
+        $form = $this->createForm(SerieFormType::class, $serie);
         $form->handleRequest($request);
-        $error=' ';
-        
-        if($form->isSubmitted() && $form->isValid()){
-            $dumpPhoto=$form->get('photo')->getData();
-           
-            if($form->get('photo')->getData()!= null){
-                $images=$form->get('photo')->getData();
-                $imgExt=$images->guessClientExtension();
-                $ext=array('png','jpeg','jpg','gif','svg');
-                $fileName =$images->getClientOriginalName();
-                dump(in_array($imgExt,$ext,$strict=false));
-                if(in_array($imgExt,$ext,$strict=false)){
-                    $images->move($this->getParameter('photo_directory').'/photo',$fileName);
+        $error = ' ';
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $dumpPhoto = $form->get('photo')->getData();
+
+            if ($form->get('photo')->getData() != null) {
+                $images = $form->get('photo')->getData();
+                $imgExt = $images->guessClientExtension();
+                $ext = array('png', 'jpeg', 'jpg', 'gif', 'svg');
+                $fileName = $images->getClientOriginalName();
+                dump(in_array($imgExt, $ext, $strict = false));
+                if (in_array($imgExt, $ext, $strict = false)) {
+                    $images->move($this->getParameter('photo_directory') . '/photo', $fileName);
                 }
                 $serie->setAffiche($fileName);
             }
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($serie);
-            
-            for($i=0;$i<count($_POST)-2;$i++){
-               if(isset($_POST["acteur_".$i]) && isset($_POST['persoNom_'.$i])){
-                    if($_POST['acteur_'.$i]!=''&&$_POST['persoNom_'.$i]!=''){
-                        
-                        $acteur=$this->getDoctrine()->getRepository(Acteur::class)->findUnActeur($_POST['acteur_'.$i]);
-                        
-                        $personnage=new Personnage();
-                        $personnage->setActeur($acteur)->setSerie($serie)->setNom($_POST['persoNom_'.$i]);
-                        
+
+            for ($i = 0; $i < count($_POST) - 2; $i++) {
+                if (isset($_POST["acteur_" . $i]) && isset($_POST['persoNom_' . $i])) {
+                    if ($_POST['acteur_' . $i] != '' && $_POST['persoNom_' . $i] != '') {
+
+                        $acteur = $entityManager->getRepository(Acteur::class)->findUnActeur($_POST['acteur_' . $i]);
+
+                        $personnage = new Personnage();
+                        $personnage->addActeur($acteur)->addSerie($serie)->setNom($_POST['persoNom_' . $i]);
+
                         $entityManager->persist($personnage);
-                                
                     }
-               }
+                }
             }
             $entityManager->flush();
-            
-            return $this->redirectToRoute('gerer_serie');
-            
-        }
-       
-        
 
-        foreach($lesSerie as $uneSerie){
-            
-            $uneSerie->setResume(str_replace("'","\'",$uneSerie->getResume()));
-            $uneSerie->setResume(str_replace("\r\n"," ",$uneSerie->getResume()));   
+            return $this->redirectToRoute('gerer_serie');
+        }
+
+
+
+        foreach ($lesSerie as $uneSerie) {
+
+            $uneSerie->setResume(str_replace("'", "\'", $uneSerie->getResume()));
+            $uneSerie->setResume(str_replace("\r\n", " ", $uneSerie->getResume()));
         }
         return $this->render('serie/gerer_serie.html.twig', [
             'serie' => $lesSerie,
             "formSerie" => $form->createView(),
-            'error'=>$error,
-            'titre'=>'Nouvelle série',
-            'acteurs'=>$acteurs
-          
+            'error' => $error,
+            'titre' => 'Nouvelle série',
+            'acteurs' => $acteurs
+
         ]);
     }
 
-    
 
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/supprimer_serie/{id}", name="supprimer_serie")
-    */
-    public function supprimer_serie($id): Response
+
+    #[Route("/supprimer_serie/{id}", name: "supprimer_serie")]
+    public function supprimer_serie($id, EntityManagerInterface $entityManager): Response
     {
-        $entityManager=$this->getDoctrine()->getManager();
-        $serie=$entityManager->getRepository(Serie::class)->findUneSerie($id);
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $serie = $entityManager->getRepository(Serie::class)->findUneSerie($id);
 
-        
         $entityManager->remove($serie);
         $entityManager->flush();
 
         return $this->redirectToRoute('gerer_serie');
     }
 
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/supprimer_series", name="supprimer_series")
-     */
-    public function supprimer_series(): Response
+    #[Route("/supprimer_series", name: "supprimer_series")]
+    public function supprimer_series(EntityManagerInterface $entityManager): Response
     {
-        $tab=array_keys($_GET);
-        
-        $entityManager=$this->getDoctrine()->getManager();
-        foreach($tab as $int){
-            
-            if($int != "checkall"){
-                $serie=$entityManager->getRepository(Serie::class)->findUneSerie($int);
-                if(file_exists($serie->getAffiche())){
-                    unlink($this->getParameter('photo_directory').'/photo//'.$serie->getAffiche());
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $tab = array_keys($_GET);
+
+        foreach ($tab as $int) {
+
+            if ($int != "checkall") {
+                $serie = $entityManager->getRepository(Serie::class)->findUneSerie($int);
+                if (file_exists($serie->getAffiche())) {
+                    unlink($this->getParameter('photo_directory') . '/photo//' . $serie->getAffiche());
                 }
-                
+
                 $entityManager->remove($serie);
                 $entityManager->flush();
             }
-
-            
         }
         return $this->redirectToRoute('gerer_serie');
     }
 
-    
-   
-    
 
-    /**
-     * @Route("/test", name="test")
-     */
-    public function test(Request $request, Aide $aide): Response
-    { 
-        
-        dump($_GET,$_POST);
-        
-        $series=$this->getDoctrine()->getRepository(Serie::class)->findAll();
-        $acteurs=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
+
+
+
+    #[Route("/test", name: "test")]
+    public function test(Request $request, Aide $aide, EntityManagerInterface $entityManager): Response
+    {
+
+        dump($_GET, $_POST);
+
+        $series = $entityManager->getRepository(Serie::class)->findAll();
+        $acteurs = $entityManager->getRepository(Acteur::class)->findAll();
         //dump($series[0]->dataJson());
         return $this->render('home/test.html.twig', [
-            'acteurs'=>$acteurs,
-            "series"=>$series
+            'acteurs' => $acteurs,
+            "series" => $series
         ]);
-        
-        
     }
     /**
      * @Route("/test2", name="test2")
      */
-    public function test2(Request $request): Response
-    { 
-        
-        
-        
-        $Episode = $this->getDoctrine()->getRepository(Episode::class)->findAll();
-        
-        
+    public function test2(Request $request, EntityManagerInterface $entityManager): Response
+    {
+
+
+
+        $episode = $entityManager->getRepository(Episode::class)->findAll();
+
+
         return $this->render('home/test2.html.twig', [
-           'episodes'=>$Episode
+            'episodes' => $episode
         ]);
     }
-
-   
 }

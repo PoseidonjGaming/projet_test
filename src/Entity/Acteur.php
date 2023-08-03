@@ -7,32 +7,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ActeurRepository::class)
- */
+#[ORM\Entity(repositoryClass: ActeurRepository::class)]
 class Acteur
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $nom;
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Personnage::class, mappedBy="Acteur", orphanRemoval=true)
-     */
-    private $personnages;
+    #[ORM\ManyToMany(targetEntity: Personnage::class, inversedBy: 'acteurs')]
+    private Collection $personnages;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $prenom;
+    #[ORM\Column(length: 255)]
+    private ?string $prenom = null;
 
     public function __construct()
     {
@@ -49,7 +39,7 @@ class Acteur
         return $this->nom;
     }
 
-    public function setNom(string $nom): self
+    public function setNom(string $nom): static
     {
         $this->nom = $nom;
 
@@ -57,31 +47,25 @@ class Acteur
     }
 
     /**
-     * @return Collection|Personnage[]
+     * @return Collection<int, Personnage>
      */
     public function getPersonnages(): Collection
     {
         return $this->personnages;
     }
 
-    public function addPersonnage(Personnage $personnage): self
+    public function addPersonnage(Personnage $personnage): static
     {
         if (!$this->personnages->contains($personnage)) {
-            $this->personnages[] = $personnage;
-            $personnage->setActeur($this);
+            $this->personnages->add($personnage);
         }
 
         return $this;
     }
 
-    public function removePersonnage(Personnage $personnage): self
+    public function removePersonnage(Personnage $personnage): static
     {
-        if ($this->personnages->removeElement($personnage)) {
-            // set the owning side to null (unless already changed)
-            if ($personnage->getActeur() === $this) {
-                $personnage->setActeur(null);
-            }
-        }
+        $this->personnages->removeElement($personnage);
 
         return $this;
     }
@@ -91,19 +75,10 @@ class Acteur
         return $this->prenom;
     }
 
-    public function setPrenom(?string $prenom): self
+    public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
 
         return $this;
-    }
-
-    public function dataJson(){
-        $data=[
-            'id'=>$this->getId(),
-            'prenom'=>$this->getPrenom(),
-            'nom'=>$this->getNom(),
-        ];
-        return $data;
     }
 }

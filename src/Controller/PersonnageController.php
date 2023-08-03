@@ -12,200 +12,156 @@ use App\Entity\Acteur;
 use App\Form\PersonnageFormType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Filesystem\Filesystem;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 class PersonnageController extends AbstractController
 {
-    /**
-     * @Route("/ajout/personnages", name="ajout_personnages")
-     */
-   public function ajout_personnages(): Response
-   {
-       $entityManager = $this->getDoctrine()->getManager();
-       dump($_POST);
-      
-       for($i=0; $i<$_POST['maxPerso']; $i++){
-            $personnage=new Personnage();
+    #[Route("/ajout/personnages", name: "ajout_personnages")]
+    public function ajout_personnages(EntityManagerInterface $entityManager): Response
+    {
+        dump($_POST);
+        for ($i = 0; $i < $_POST['maxPerso']; $i++) {
+            $personnage = new Personnage();
 
-            if($_POST['inputNom_'.$i]!=''){
-               $personnage->setNom($_POST['inputNom_'.$i]);
+            if ($_POST['inputNom_' . $i] != '') {
+                $personnage->setNom($_POST['inputNom_' . $i]);
             }
-            if($_POST['inputActeur_'.$i]!=''){
-                $repActeur=$this->getDoctrine()->getRepository(Acteur::class);
-                $personnage->setActeur($repActeur->findUnActeur($_POST['inputActeur_'.$i]));
-                
+            if ($_POST['inputActeur_' . $i] != '') {
+                $repActeur = $entityManager->getRepository(Acteur::class);
+                $personnage->addActeur($repActeur->findUnActeur($_POST['inputActeur_' . $i]));
             }
-            if($_POST['inputSerie_'.$i]!=''){
-                $repSerie=$this->getDoctrine()->getRepository(Serie::class);
-                
-                $personnage->setSerie($repSerie->findUneSerie($_POST['inputSerie_'.$i]));
+            if ($_POST['inputSerie_' . $i] != '') {
+                $repSerie = $entityManager->getRepository(Serie::class);
+                $personnage->addSerie($repSerie->findUneSerie($_POST['inputSerie_' . $i]));
             }
-            
-           
-           
+
+
+
             $entityManager->persist($personnage);
             dump($personnage);
-       }
-       $entityManager->flush();
-       return $this->redirectToRoute('gerer_personnages');
-      
-       
-   }
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/supprimer_personnage/{id}", name="supprimer_personnage")
-     */
-    public function supprimer_personnage($id): Response
+        }
+        $entityManager->flush();
+        return $this->redirectToRoute('gerer_personnages');
+    }
+    #[Route("/supprimer_personnage/{id}", name: "supprimer_personnage")]
+    public function supprimer_personnage($id, EntityManagerInterface $entityManager): Response
     {
-        $entityManager=$this->getDoctrine()->getManager();
-        $personnage=$entityManager->getRepository(Personnage::class)->findUnPersonnage($id);
-       
-        $id=$personnage->getActeur()->getId();
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $personnage = $entityManager->getRepository(Personnage::class)->findUnPersonnage($id);
+
+        $id = $personnage->getActeur()->getId();
         $entityManager->remove($personnage);
         $entityManager->flush();
-        
-        if($_GET['route']=='gerer_personnage'){
-            return $this->redirectToRoute('gerer_personnage',array('id'=>$id));
-        }
-        else{
+
+        if ($_GET['route'] == 'gerer_personnage') {
+            return $this->redirectToRoute('gerer_personnage', array('id' => $id));
+        } else {
             return $this->redirectToRoute('gerer_personnages');
         }
-        
     }
 
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/supprimer_personnages", name="supprimer_personnages")
-     */
-    public function supprimer_personnages(): Response
+    #[Route("/supprimer_personnages", name: "supprimer_personnages")]
+    public function supprimer_personnages(EntityManagerInterface $entityManager): Response
     {
-        $tab=array_keys($_GET);
-        $entityManager=$this->getDoctrine()->getManager();
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $tab = array_keys($_GET);
         dump($_GET);
-        foreach($tab as $int){
-    
-            if($int != "checkall" && $int!="route" ){
-                $personnage=$entityManager->getRepository(Personnage::class)->findUnPersonnage($int);
-                $id=$personnage->getActeur()->getId();
+        foreach ($tab as $int) {
+
+            if ($int != "checkall" && $int != "route") {
+                $personnage = $entityManager->getRepository(Personnage::class)->findUnPersonnage($int);
+                $id = $personnage->getActeur()->getId();
                 $entityManager->remove($personnage);
-                
-                
             }
-           
-            
-            
         }
         $entityManager->flush();
-       
-        if($_GET['route']=='gerer_personnage'){
-            return $this->redirectToRoute('gerer_personnage',array('id'=>$id));
-        }
-        else{
+
+        if ($_GET['route'] == 'gerer_personnage') {
+            return $this->redirectToRoute('gerer_personnage', array('id' => $id));
+        } else {
             return $this->redirectToRoute('gerer_personnages');
         }
-       
-       
-        
     }
 
-    /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/gerer_personnage/{id}", name="gerer_personnage")
-     */
-    public function gerer_personnage(Request $request,$id): Response
+    #[Route("/gerer_personnage/{id}", name: "gerer_personnage")]
+    public function gerer_personnage(Request $request, $id, EntityManagerInterface $entityManager): Response
     {
-        $rep=$this->getDoctrine()->getRepository(Personnage::class);  
-        $personnages=$rep->findPersonnages($id);
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $rep = $entityManager->getRepository(Personnage::class);
+        $personnages = $rep->findPersonnages($id);
 
-        
-        $series=$this->getDoctrine()->getRepository(Serie::class)->findAll();
-        
-        
-        $personnage=new Personnage();
-        if(isset($_POST['ID'])){
-            $searchPersonnage=$rep->findUnPersonnage($_POST['ID']);
-            
-            if($searchPersonnage!=null){
-                $personnage=$searchPersonnage;
+
+        $series = $entityManager->getRepository(Serie::class)->findAll();
+
+
+        $personnage = new Personnage();
+        if (isset($_POST['ID'])) {
+            $searchPersonnage = $rep->findUnPersonnage($_POST['ID']);
+
+            if ($searchPersonnage != null) {
+                $personnage = $searchPersonnage;
             }
         }
-        
-        $form = $this->createForm(PersonnageFormType::class,$personnage);
+
+        $form = $this->createForm(PersonnageFormType::class, $personnage);
         $form->handleRequest($request);
-        $error=' ';
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-           
-            
-            $personnage->setActeur($this->getDoctrine()->getRepository(Acteur::class)->findUnActeur($id));
-            
-            $entityManager = $this->getDoctrine()->getManager();
+
+
+            $personnage->setActeur($entityManager->getRepository(Acteur::class)->findUnActeur($id));
+
             $entityManager->persist($personnage);
             $entityManager->flush();
-         
-            return $this->redirectToRoute('gerer_personnage',array('id'=>$id));
-            
+
+            return $this->redirectToRoute('gerer_personnage', array('id' => $id));
         }
 
         return $this->render('personnage/gerer_personnage.html.twig', [
-            'personnages'=> $personnages,
-            'formPersonnage'=>$form->createView(),
-            "id"=>$id,
-            'route'=>'gerer_personnage',
-            'series'=>$series
+            'personnages' => $personnages,
+            'formPersonnage' => $form->createView(),
+            "id" => $id,
+            'route' => 'gerer_personnage',
+            'series' => $series
         ]);
-
-        
     }
-     /**
-     * @IsGranted("ROLE_admin")
-     * @Route("/gerer_personnages", name="gerer_personnages")
-     */
-    public function gerer_personnages(Request $request): Response
+    #[Route("/gerer_personnages", name: "gerer_personnages")]
+    public function gerer_personnages(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $rep=$this->getDoctrine()->getRepository(Personnage::class);  
-        $personnages=$rep->findAll();
-        $acteurs=$this->getDoctrine()->getRepository(Acteur::class)->findAll();
-        $series=$this->getDoctrine()->getRepository(Serie::class)->findAll();
-        
-        $personnage=new Personnage();
-        if(isset($_POST['ID'])){
-            $searchPersonnage=$rep->findUnPersonnage($_POST['ID']);
-            
-            if($searchPersonnage!=null){
-                $personnage=$searchPersonnage;
+        $this->denyAccessUnlessGranted('ROLE_admin');
+        $rep = $entityManager->getRepository(Personnage::class);
+        $personnages = $rep->findAll();
+        $acteurs = $entityManager->getRepository(Acteur::class)->findAll();
+        $series = $entityManager->getRepository(Serie::class)->findAll();
+
+        $personnage = new Personnage();
+        if (isset($_POST['ID'])) {
+            $searchPersonnage = $rep->findUnPersonnage($_POST['ID']);
+
+            if ($searchPersonnage != null) {
+                $personnage = $searchPersonnage;
             }
         }
-        
-        $form = $this->createForm(PersonnageFormType::class,$personnage);
+
+        $form = $this->createForm(PersonnageFormType::class, $personnage);
         $form->handleRequest($request);
-        $error=' ';
-        
+        $error = ' ';
         if ($form->isSubmitted() && $form->isValid()) {
 
-            
-            $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($personnage);
             $entityManager->flush();
             return $this->redirectToRoute('gerer_personnages');
-            
-            
         }
 
         return $this->render('personnage/gerer_personnage.html.twig', [
-            'personnages'=> $personnages,
-            'formPersonnage'=>$form->createView(),
-            'route'=>'gerer_personnages',
-            'acteurs'=>$acteurs,
-            'series'=>$series
-            
+            'personnages' => $personnages,
+            'formPersonnage' => $form->createView(),
+            'route' => 'gerer_personnages',
+            'acteurs' => $acteurs,
+            'series' => $series
+
         ]);
-
-        
     }
-
-   
-
-   
 }

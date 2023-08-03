@@ -3,42 +3,29 @@
 namespace App\Entity;
 
 use App\Repository\EpisodeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EpisodeRepository::class)
- */
+#[ORM\Entity(repositoryClass: EpisodeRepository::class)]
 class Episode
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $nom;
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
 
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $resume;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $resume = null;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    private $date_prem_diff;
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $datePremDiff = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Saison::class, inversedBy="episodes")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $saison;
-
-    
+    #[ORM\ManyToOne(inversedBy: 'episodes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Saison $saison = null;
 
     public function getId(): ?int
     {
@@ -50,7 +37,7 @@ class Episode
         return $this->nom;
     }
 
-    public function setNom(?string $nom): self
+    public function setNom(string $nom): static
     {
         $this->nom = $nom;
 
@@ -62,7 +49,7 @@ class Episode
         return $this->resume;
     }
 
-    public function setResume(?string $resume): self
+    public function setResume(?string $resume): static
     {
         $this->resume = $resume;
 
@@ -71,12 +58,12 @@ class Episode
 
     public function getDatePremDiff(): ?\DateTimeInterface
     {
-        return $this->date_prem_diff;
+        return $this->datePremDiff;
     }
 
-    public function setDatePremDiff(?\DateTimeInterface $date_prem_diff): self
+    public function setDatePremDiff(?\DateTimeInterface $datePremDiff): static
     {
-        $this->date_prem_diff = $date_prem_diff;
+        $this->datePremDiff = $datePremDiff;
 
         return $this;
     }
@@ -86,23 +73,10 @@ class Episode
         return $this->saison;
     }
 
-    public function setSaison(?Saison $saison): self
+    public function setSaison(?Saison $saison): static
     {
         $this->saison = $saison;
 
         return $this;
-    }
-
-    public function dataJson(){
-        $data=[
-            'id'=>$this->getId(),
-            'nom'=>$this->getNom(),
-            'date'=>$this->getDatePremDiff(),
-            "resume"=>$this->getResume(),
-            'serieId'=>$this->getSaison()->getSerie()->getId(),
-            'serieNom'=>$this->getSaison()->getSerie()->getNom(),
-            'saison'=>$this->getSaison()->getNumero()
-        ];
-        return $data;
     }
 }
