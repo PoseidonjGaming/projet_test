@@ -10,7 +10,8 @@
 <div class="conn">
     <div class="card mb-4" style="width: 20 rem;">
         <div class="card-body">
-            <form method="post">
+        {% block login %}
+            <form method="post" action="/login">
                 {% if error %}
                     <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                 {% endif %}
@@ -46,6 +47,7 @@
                     Connexion
                 </button>
             </form>
+            {% endblock %}
         </div>
     </div>
 </div>
