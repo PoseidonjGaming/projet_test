@@ -7,8 +7,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: SaisonRepository::class)]
+#[ORM\UniqueConstraint(name: "UNX_series_numero", columns: ['serie_id', 'numero'])]
+#[UniqueEntity(
+    fields: ['serie', 'numero'],
+    errorPath: 'numero',
+    message: 'This serie has already this season number.',
+)]
 class Saison
 {
     #[ORM\Id]
