@@ -15,67 +15,68 @@ class Episode
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $nom = null;
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $resume = null;
+    private ?string $summary = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $datePremDiff = null;
+    private ?\DateTimeInterface $releaseDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'episodes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Saison $saison = null;
+    private ?Season $season = null;
+
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getNom(): ?string
+    public function getName(): ?string
     {
-        return $this->nom;
+        return $this->name;
     }
 
-    public function setNom(string $nom): static
+    public function setName(string $name): static
     {
-        $this->nom = $nom;
+        $this->name = $name;
 
         return $this;
     }
 
     public function getResume(): ?string
     {
-        return $this->resume;
+        return $this->summary;
     }
 
-    public function setResume(?string $resume): static
+    public function setResume(?string $summary): static
     {
-        $this->resume = $resume;
+        $this->summary = $summary;
 
         return $this;
     }
 
-    public function getDatePremDiff(): ?\DateTimeInterface
+    public function getRealeseDate(): ?\DateTimeInterface
     {
-        return $this->datePremDiff;
+        return $this->releaseDate;
     }
 
-    public function setDatePremDiff(?\DateTimeInterface $datePremDiff): static
+    public function setRealeseDate(?\DateTimeInterface $releaseDate): static
     {
-        $this->datePremDiff = $datePremDiff;
+        $this->releaseDate = $releaseDate;
 
         return $this;
     }
 
-    public function getSaison(): ?Saison
+    public function getSeason(): ?Season
     {
-        return $this->saison;
+        return $this->season;
     }
 
-    public function setSaison(?Saison $saison): static
+    public function setSeason(?Season $season): static
     {
-        $this->saison = $saison;
+        $this->season = $season;
 
         return $this;
     }

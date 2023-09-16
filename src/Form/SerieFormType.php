@@ -13,7 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\ResetType;
 
-class SerieFormType extends AbstractType 
+class SerieFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -21,22 +21,20 @@ class SerieFormType extends AbstractType
             ->add('nom')
             ->add('date_diff', DateType::class, [
                 'input'  => 'datetime',
-                'widget'=>'single_text',                
+                'widget' => 'single_text',
             ])
-            ->add('photo',   FileType::class,[
+            ->add('photo',   FileType::class, [
                 'label' => false,
                 'multiple' => false,
                 'mapped' => false,
                 'required' => false,
-                'attr'=>['onchange'=>'previewPicture(this)']
-                
+                'attr' => ['onchange' => 'previewPicture(this)']
+
             ])
-            ->add('resume', TextAreaType::class,['attr'=> ['cols'=> 45, 'rows'=> 7 ]])
+            ->add('summary', TextAreaType::class, ['attr' => ['cols' => 45, 'rows' => 7]])
             ->add('url_ba')
-            ->add('Valider', SubmitType::class,['attr' => ['class' =>'btn btn-primary']])
-            ->add('reset',ResetType::class,['attr' => ['class' =>'btn btn-primary']])
-           
-        ;
+            ->add('Valider', SubmitType::class, ['attr' => ['class' => 'btn btn-primary']])
+            ->add('reset', ResetType::class, ['attr' => ['class' => 'btn btn-primary']]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

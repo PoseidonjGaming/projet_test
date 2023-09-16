@@ -5,11 +5,10 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Acteur;
+use App\Entity\Actor;
 use App\Form\ActeurFormType;
-use Symfony\Component\Filesystem\Filesystem;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -20,13 +19,13 @@ class ActeurController extends AbstractController
     public function ajout_acteurs(EntityManagerInterface $entityManager): Response
     {
         for ($i = 0; $i < $_POST['maxActeur']; $i++) {
-            $acteur = new Acteur();
+            $acteur = new Actor();
 
             if ($_POST['inputNom_' . $i] != '') {
-                $acteur->setNom($_POST['inputNom_' . $i]);
+                $acteur->setLastname($_POST['inputNom_' . $i]);
             }
             if ($_POST['inputPrenom_' . $i] != '') {
-                $acteur->setPrenom($_POST['inputPrenom_' . $i]);
+                $acteur->setFirstname($_POST['inputPrenom_' . $i]);
             }
 
 
@@ -39,7 +38,7 @@ class ActeurController extends AbstractController
     public function supprimer_acteur($id, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_admin');
-        $acteur = $entityManager->getRepository(Acteur::class)->findUnActeur($id);
+        $acteur = $entityManager->getRepository(Acteur::class)->findActorById($id);
 
 
         $entityManager->remove($acteur);
@@ -56,7 +55,7 @@ class ActeurController extends AbstractController
         foreach ($tab as $int) {
 
             if ($int != "checkall") {
-                $episode = $entityManager->getRepository(Acteur::class)->findUnActeur($int);
+                $episode = $entityManager->getRepository(Acteur::class)->findActorById($int);
                 $entityManager->remove($episode);
                 $entityManager->flush();
             }
@@ -71,9 +70,9 @@ class ActeurController extends AbstractController
         $rep = $entityManager->getRepository(Acteur::class);
         $acteurs = $rep->findAll();
 
-        $acteur = new Acteur();
+        $acteur = new Actor();
         if (isset($_POST['ID'])) {
-            $searchActeur = $rep->findUnActeur($_POST['ID']);
+            $searchActeur = $rep->findActorById($_POST['ID']);
 
             if ($searchActeur != null) {
                 $acteur = $searchActeur;

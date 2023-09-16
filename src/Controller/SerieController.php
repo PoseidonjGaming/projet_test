@@ -6,19 +6,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Serie;
-use App\Entity\Saison;
 use App\Entity\Acteur;
+use App\Entity\Character;
 use App\Entity\Personnage;
 use App\Entity\Episode;
+use App\Entity\Season;
+use App\Entity\Series;
 use App\Form\SerieFormType;
-use App\Form\ImportFormType;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\Validator\Constraints\DateTime;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Service\Aide;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
 
 
@@ -32,9 +28,9 @@ class SerieController extends AbstractController
         $lesSerie = $rep->findAll();
 
         foreach ($lesSerie as $serie) {
-            $resume = $serie->getResume();
-            $resumeM = substr($resume, 0, 150) . '...';
-            $serie->setResume($resumeM);
+            $summary = $serie->getResume();
+            $summaryM = substr($summary, 0, 150) . '...';
+            $serie->setResume($summaryM);
         }
 
         return $this->render('serie/index.html.twig', [
@@ -48,10 +44,10 @@ class SerieController extends AbstractController
     {
 
         for ($i = 0; $i < $_POST['maxSerie']; $i++) {
-            $serie = new Serie();
+            $serie = new Series();
 
             if ($_POST['inputNom_' . $i] != '') {
-                $serie->setNom($_POST['inputNom_' . $i]);
+                $serie->setName($_POST['inputNom_' . $i]);
             }
             if ($_POST['inputResume_' . $i] != '') {
                 $serie->setResume($_POST['inputResume_' . $i]);
@@ -64,26 +60,26 @@ class SerieController extends AbstractController
             if ($_POST['inputSaison_' . $i] != '') {
 
                 for ($sa = 0; $sa < $_POST['inputSaison_' . $i]; $sa++) {
-                    $saison = new Saison();
+                    $saison = new Season();
                     $saison->setNumero($sa + 1);
 
                     $entityManager->persist($saison);
-                    $serie->addSaison($saison);
+                    $serie->addSeason($saison);
                 }
             }
             if ($_FILES['inputFile_' . $i]['name'] != '') {
                 move_uploaded_file($_FILES['inputFile_' . $i]['tmp_name'], $this->getParameter('photo_directory') . '/photo/' . $_FILES['inputFile_' . $i]['name']);
-                $serie->setAffiche($_FILES['inputFile_' . $i]['name']);
+                $serie->setPoster($_FILES['inputFile_' . $i]['name']);
             }
             if ($_POST['nbPerso_' . $i] != '') {
                 for ($p = 0; $p < $_POST['nbPerso_' . $i]; $p++) {
 
-                    $perso = $entityManager->getRepository(Personnage::class)->findUnPersonnageByActeur($_POST['persoNom_' . $i . '_' . $p], $_POST['acteur_' . $i . '_' . $p]);
+                    $perso = $entityManager->getRepository(Personnage::class)->findCharacterByActorIdAndName($_POST['persoNom_' . $i . '_' . $p], $_POST['acteur_' . $i . '_' . $p]);
                     dump($perso);
                     if ($perso == null) {
-                        $perso = new Personnage();
-                        $perso->addActeur($entityManager->getRepository(Acteur::class)->findUnActeur($_POST['acteur_' . $i . '_' . $p]));
-                        $perso->addSerie($serie);
+                        $perso = new Character();
+                        $perso->addActor($entityManager->getRepository(Acteur::class)->findActorById($_POST['acteur_' . $i . '_' . $p]));
+                        $perso->addSeries($serie);
                         $entityManager->persist($saison);
                     }
                 }
@@ -122,7 +118,7 @@ class SerieController extends AbstractController
         $rep = $entityManager->getRepository(Serie::class);
         $lesSerie = $rep->findAll();
 
-        $serie = new Serie();
+        $serie = new Series();
 
         if (isset($_POST['ID'])) {
             $searchSerie = $rep->findUneSerie($_POST['ID']);
@@ -156,10 +152,10 @@ class SerieController extends AbstractController
                 if (isset($_POST["acteur_" . $i]) && isset($_POST['persoNom_' . $i])) {
                     if ($_POST['acteur_' . $i] != '' && $_POST['persoNom_' . $i] != '') {
 
-                        $acteur = $entityManager->getRepository(Acteur::class)->findUnActeur($_POST['acteur_' . $i]);
+                        $acteur = $entityManager->getRepository(Acteur::class)->findActorById($_POST['acteur_' . $i]);
 
-                        $personnage = new Personnage();
-                        $personnage->addActeur($acteur)->addSerie($serie)->setNom($_POST['persoNom_' . $i]);
+                        $personnage = new Character();
+                        $personnage->addActor($acteur)->addSeries($serie)->setName($_POST['persoNom_' . $i]);
 
                         $entityManager->persist($personnage);
                     }

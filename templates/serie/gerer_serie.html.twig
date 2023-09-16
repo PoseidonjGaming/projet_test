@@ -64,7 +64,7 @@
             {% for uneSerie in serie %}
             <tr>
                 <td style="text-align: center; vertical-align: middle;">{{uneSerie.nom}}</td>
-                <td style="text-align: center; vertical-align: middle;">{{uneSerie.dateDiff|date("d/m/Y")}}</td>
+                <td style="text-align: center; vertical-align: middle;">{{uneSerie.releaseDate|date("d/m/Y")}}</td>
                 <td style="text-align: center; vertical-align: middle;"> {{uneSerie.saisons|length}} </td>
                 {% set nbEP = 0 %}
                 {% for uneSaison in uneSerie.saisons %}      
@@ -72,7 +72,7 @@
                 {% endfor %}
                 <td style="text-align: center; vertical-align: middle;"> {{nbEP}} </td>    
                 <td style="text-align: center; vertical-align: middle;"> 
-                    <button type="button" class="btn btn-warning"  name="{{uneSerie.id}}" id="{{uneSerie.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{uneSerie.nom}}','{{uneSerie.dateDiff|date("Y-m-d")}}','{{uneSerie.resume}}','{{uneSerie.urlBa}}','{{uneSerie.affiche}}','{{uneSerie.id}}')"> 
+                    <button type="button" class="btn btn-warning"  name="{{uneSerie.id}}" id="{{uneSerie.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{uneSerie.nom}}','{{uneSerie.releaseDate|date("Y-m-d")}}','{{uneSerie.summary}}','{{uneSerie.urlBa}}','{{uneSerie.affiche}}','{{uneSerie.id}}')"> 
                         Modifier
                     </button>
                     <button type="button" class="btn btn-danger"  name="supSerie" id="supSerie" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{uneSerie.id}}')">Supprimer</button>
@@ -120,8 +120,8 @@
                             <div class="col-md-4" style="width: 500px;">
                                 {{form_start(formSerie)}}
                                     <p>Nom: {{form_widget(formSerie.nom)}}</p>                   
-                                    <p>Date de diffusion: {{form_widget(formSerie.dateDiff)}}</p>
-                                    <p>{{form_label(formSerie.resume,'Résumé:')}} {{form_widget(formSerie.resume)}}</p>
+                                    <p>Date de diffusion: {{form_widget(formSerie.releaseDate)}}</p>
+                                    <p>{{form_label(formSerie.summary,'Résumé:')}} {{form_widget(formSerie.summary)}}</p>
                                     <p>{{form_label(formSerie.url_ba,'Lien de la bande annonce: ')}} {{form_widget(formSerie.url_ba)}}</p>
                                     <p>Affiche: {{form_widget(formSerie.photo)}}</p>
                                     
@@ -281,7 +281,7 @@
             success: function(element){
                 
                 window.ListeBase=element
-                window.exception=['id',"resume",'affiche','Ba','type']
+                window.exception=['id',"summary",'affiche','Ba','type']
                 
                 document.getElementById('titre').value=""
                 window.nom=""

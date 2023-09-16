@@ -35,7 +35,7 @@
             <tbody>
                 {% for uneSaison in saisons %}
                 <tr>
-                    <th style="text-align: center; vertical-align: middle;">{{uneSaison.numero}}</th>
+                    <th style="text-align: center; vertical-align: middle;">{{uneSaison.number}}</th>
                     <th style="text-align: center; vertical-align: middle;"> {{uneSaison.Episodes|length}}/{{uneSaison.NbEpisode}} </th>
                     <th style="text-align: center; vertical-align: middle;">            
                         <button type="button" class="btn btn-warning"  name="{{uneSaison.id}}" id="{{uneSaison.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" onclick="modifier('{{uneSaison.NbEpisode}}','{{uneSaison.id}}')"> 

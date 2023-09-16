@@ -17,22 +17,21 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\ResetType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
- 
+
 class EpisodeFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('nom')
-            ->add('resume', TextAreaType::class,['attr'=> ['cols'=> 45, 'rows'=> 5 ]])
+            ->add('summary', TextAreaType::class, ['attr' => ['cols' => 45, 'rows' => 5]])
             ->add('date_prem_diff', DateType::class, [
                 'input'  => 'datetime',
-                'widget'=>'single_text',                
+                'widget' => 'single_text',
             ])
-            
-            ->add('Valider', SubmitType::class,['attr' => ['class' =>'btn btn-primary']])
-            ->add('reset', ResetType::class,['attr' => ['class' =>'btn btn-primary']])
-        ;
+
+            ->add('Valider', SubmitType::class, ['attr' => ['class' => 'btn btn-primary']])
+            ->add('reset', ResetType::class, ['attr' => ['class' => 'btn btn-primary']]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

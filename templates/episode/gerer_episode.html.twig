@@ -81,10 +81,10 @@
                     {% if not id is defined %}
                         <th style="text-align: center; vertical-align: middle;">{{unEpisode.saison.serie.nom}}</th>
                     {% endif %}
-                    <th style="text-align: center; vertical-align: middle;"> {{unEpisode.saison.numero}} </th>                 
+                    <th style="text-align: center; vertical-align: middle;"> {{unEpisode.saison.number}} </th>                 
                     <th style="text-align: center; vertical-align: middle;">
                         <button type="button" class="btn btn-warning"  name="{{unEpisode.id}}" id="{{unEpisode.id}}" data-bs-toggle="modal" data-bs-target="#modal_modifier" 
-                        onclick="modifier('{{unEpisode.id}}','{{unEpisode.nom}}','{{unEpisode.datePremDiff|date("Y-m-d")}}','{{unEpisode.resume}}','{{unEpisode.saison.serie.id}}','{{unEpisode.saison.numero}}')"> 
+                        onclick="modifier('{{unEpisode.id}}','{{unEpisode.nom}}','{{unEpisode.datePremDiff|date("Y-m-d")}}','{{unEpisode.summary}}','{{unEpisode.saison.serie.id}}','{{unEpisode.saison.number}}')"> 
                             Modifier
                         </button>
                         <button type="button" class="btn btn-danger"  name="sup" id="sup" data-bs-toggle="modal" data-bs-target="#modal_supprimer" onclick="supprimer('{{unEpisode.id}}')">Supprimer</button>
@@ -145,7 +145,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
                         </p>
                         {% endif %}                 
                         <p>Date de diffusion: {{form_widget(formEpisode.date_prem_diff)}}</p>
-                        <p>{{form_label(formEpisode.resume,'Résumé:')}} {{form_widget(formEpisode.resume)}}</p>
+                        <p>{{form_label(formEpisode.summary,'Résumé:')}} {{form_widget(formEpisode.summary)}}</p>
                         <p><label for="last_season">    
                             <input type="checkbox" id='last_season' name="last_season"> Dernier épisode de la saison ?
                         </label></p>
@@ -259,7 +259,7 @@ aria-labelledby="exampleModalCenterTitle" aria-hidden="true" >
             success: function(element){
                 
                 window.ListeBase=element
-                window.exception=['id',"serieId",'resume']
+                window.exception=['id',"serieId",'summary']
                 
                 document.getElementById('titre').value=""
                 window.nom=""

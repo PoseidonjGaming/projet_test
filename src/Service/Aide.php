@@ -250,7 +250,7 @@ class Aide extends AbstractController
                         }
                         if ($col == $titreCol['Acteur']) {
                             $array_acteur = explode(' ', $value);
-                            $acteur = $entityManager->getRepository(Acteur::class)->findUnActeurByNom($array_acteur[0], $array_acteur[1]);
+                            $acteur = $entityManager->getRepository(Acteur::class)->findActorByIdAndName($array_acteur[0], $array_acteur[1]);
                             if ($acteur == null) {
                                 $acteur = new Acteur();
                                 $acteur->setNom($array_acteur[1]);
@@ -345,7 +345,7 @@ class Aide extends AbstractController
             $tab = explode(',', $get['listeExport']);
             $episodes = [];
             foreach ($tab as $int) {
-                $episode = $entityManager->getRepository(Episode::class)->findUnEpisode($int);
+                $episode = $entityManager->getRepository(Episode::class)->findEpisodeById($int);
                 array_push($episodes, $episode);
             }
         } else {
@@ -383,7 +383,7 @@ class Aide extends AbstractController
             $tab = explode(',', $get['listeExport']);
             $personnages = [];
             foreach ($tab as $int) {
-                $personnage = $entityManager->getRepository(Personnage::class)->findUnPersonnage($int);
+                $personnage = $entityManager->getRepository(Personnage::class)->findCharacterById($int);
                 array_push($personnages, $personnage);
             }
         } else {
@@ -423,7 +423,7 @@ class Aide extends AbstractController
             foreach ($tab as $int) {
 
 
-                $acteur = $entityManager->getRepository(Acteur::class)->findUnActeur($int);
+                $acteur = $entityManager->getRepository(Acteur::class)->findActorById($int);
                 array_push($acteurs, $acteur);
             }
         } else {

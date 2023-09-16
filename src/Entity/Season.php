@@ -2,21 +2,16 @@
 
 namespace App\Entity;
 
-use App\Repository\SaisonRepository;
+use App\Repository\SeasonRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\ORM\Mapping\Column;
 
-#[ORM\Entity(repositoryClass: SaisonRepository::class)]
-#[ORM\UniqueConstraint(name: "UNX_series_numero", columns: ['serie_id', 'numero'])]
-#[UniqueEntity(
-    fields: ['serie', 'numero'],
-    errorPath: 'numero',
-    message: 'This serie has already this season number.',
-)]
-class Saison
+#[ORM\Entity(repositoryClass: SeasonRepository::class)]
+#[ORM\UniqueConstraint(name: "UNX_series_number", columns: ['series_id', 'number'])]
+class Season
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -24,13 +19,12 @@ class Saison
     private ?int $id = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
-    private ?int $numero = null;
+    private ?int $number = null;
 
-    #[ORM\ManyToOne(inversedBy: 'saisons')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Serie $serie = null;
+    #[ORM\ManyToOne(inversedBy: 'seasons')]
+    private ?Series $series = null;
 
-    #[ORM\OneToMany(mappedBy: 'saison', targetEntity: Episode::class)]
+    #[ORM\OneToMany(mappedBy: 'season', targetEntity: Episode::class)]
     private Collection $episodes;
 
     public function __construct()
@@ -45,24 +39,24 @@ class Saison
 
     public function getNumero(): ?int
     {
-        return $this->numero;
+        return $this->number;
     }
 
-    public function setNumero(int $numero): static
+    public function setNumero(int $number): static
     {
-        $this->numero = $numero;
+        $this->number = $number;
 
         return $this;
     }
 
-    public function getSerie(): ?Serie
+    public function getSeries(): ?Series
     {
-        return $this->serie;
+        return $this->series;
     }
 
-    public function setSerie(?Serie $serie): static
+    public function setSeries(?Series $series): static
     {
-        $this->serie = $serie;
+        $this->series = $series;
 
         return $this;
     }
@@ -79,7 +73,7 @@ class Saison
     {
         if (!$this->episodes->contains($episode)) {
             $this->episodes->add($episode);
-            $episode->setSaison($this);
+            $episode->setSeason($this);
         }
 
         return $this;
@@ -89,8 +83,8 @@ class Saison
     {
         if ($this->episodes->removeElement($episode)) {
             // set the owning side to null (unless already changed)
-            if ($episode->getSaison() === $this) {
-                $episode->setSaison(null);
+            if ($episode->getSeason() === $this) {
+                $episode->setSeason(null);
             }
         }
 

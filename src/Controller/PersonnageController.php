@@ -29,7 +29,7 @@ class PersonnageController extends AbstractController
             }
             if ($_POST['inputActeur_' . $i] != '') {
                 $repActeur = $entityManager->getRepository(Acteur::class);
-                $personnage->addActeur($repActeur->findUnActeur($_POST['inputActeur_' . $i]));
+                $personnage->addActeur($repActeur->findActorById($_POST['inputActeur_' . $i]));
             }
             if ($_POST['inputSerie_' . $i] != '') {
                 $repSerie = $entityManager->getRepository(Serie::class);
@@ -48,7 +48,7 @@ class PersonnageController extends AbstractController
     public function supprimer_personnage($id, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_admin');
-        $personnage = $entityManager->getRepository(Personnage::class)->findUnPersonnage($id);
+        $personnage = $entityManager->getRepository(Personnage::class)->findCharacterById($id);
 
         $id = $personnage->getActeur()->getId();
         $entityManager->remove($personnage);
@@ -70,7 +70,7 @@ class PersonnageController extends AbstractController
         foreach ($tab as $int) {
 
             if ($int != "checkall" && $int != "route") {
-                $personnage = $entityManager->getRepository(Personnage::class)->findUnPersonnage($int);
+                $personnage = $entityManager->getRepository(Personnage::class)->findCharacterById($int);
                 $id = $personnage->getActeur()->getId();
                 $entityManager->remove($personnage);
             }
@@ -89,7 +89,7 @@ class PersonnageController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_admin');
         $rep = $entityManager->getRepository(Personnage::class);
-        $personnages = $rep->findPersonnages($id);
+        $personnages = $rep->findCharacterByActorId($id);
 
 
         $series = $entityManager->getRepository(Serie::class)->findAll();
@@ -97,7 +97,7 @@ class PersonnageController extends AbstractController
 
         $personnage = new Personnage();
         if (isset($_POST['ID'])) {
-            $searchPersonnage = $rep->findUnPersonnage($_POST['ID']);
+            $searchPersonnage = $rep->findCharacterById($_POST['ID']);
 
             if ($searchPersonnage != null) {
                 $personnage = $searchPersonnage;
@@ -111,7 +111,7 @@ class PersonnageController extends AbstractController
 
 
 
-            $personnage->setActeur($entityManager->getRepository(Acteur::class)->findUnActeur($id));
+            $personnage->setActeur($entityManager->getRepository(Acteur::class)->findActorById($id));
 
             $entityManager->persist($personnage);
             $entityManager->flush();
@@ -138,7 +138,7 @@ class PersonnageController extends AbstractController
 
         $personnage = new Personnage();
         if (isset($_POST['ID'])) {
-            $searchPersonnage = $rep->findUnPersonnage($_POST['ID']);
+            $searchPersonnage = $rep->findCharacterById($_POST['ID']);
 
             if ($searchPersonnage != null) {
                 $personnage = $searchPersonnage;

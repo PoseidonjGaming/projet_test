@@ -71,7 +71,7 @@ class EpisodeController extends AbstractController
     public function supprimer_episode($id, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_admin');
-        $episode = $entityManager->getRepository(Episode::class)->findUnEpisode($id);
+        $episode = $entityManager->getRepository(Episode::class)->findEpisodeById($id);
         $saisonId = $episode->getSaison()->getId();
 
         $entityManager->remove($episode);
@@ -91,7 +91,7 @@ class EpisodeController extends AbstractController
         foreach ($tab as $int) {
 
             if (!in_array($int, $exclude)) {
-                $episode = $entityManager->getRepository(Episode::class)->findUnEpisode($int);
+                $episode = $entityManager->getRepository(Episode::class)->findEpisodeById($int);
                 $id = $episode->getSaison()->getId();
                 $entityManager->remove($episode);
                 $entityManager->flush();
@@ -105,12 +105,12 @@ class EpisodeController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_admin');
         $rep = $entityManager->getRepository(Episode::class);
-        $ListeEpisodes = $rep->findEpisodes($id);
+        $ListeEpisodes = $rep->findEpisodesBySeasonIdAndBySerieId($id);
 
 
         $episode = new Episode();
         if (isset($_POST['ID'])) {
-            $searchEpisode = $rep->findUnEpisode($_POST['ID']);
+            $searchEpisode = $rep->findEpisodeById($_POST['ID']);
 
             if ($searchEpisode != null) {
                 $episode = $searchEpisode;
@@ -173,7 +173,7 @@ class EpisodeController extends AbstractController
         $series = $entityManager->getRepository(Serie::class)->findAll();
         $episode = new Episode();
         if (isset($_POST['ID'])) {
-            $searchEpisode = $rep->findUnEpisode($_POST['ID']);
+            $searchEpisode = $rep->findEpisodeById($_POST['ID']);
 
             if ($searchEpisode != null) {
                 $episode = $searchEpisode;
