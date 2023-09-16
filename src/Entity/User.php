@@ -28,6 +28,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatarFile = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -96,5 +99,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getAvatarFile(): ?string
+    {
+        return $this->avatarFile;
+    }
+
+    public function setAvatarFile(?string $avatarFile): static
+    {
+        $this->avatarFile = $avatarFile;
+
+        return $this;
     }
 }
