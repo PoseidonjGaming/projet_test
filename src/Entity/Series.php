@@ -37,10 +37,14 @@ class Series
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $trailerUrl = null;
 
+    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'series')]
+    private Collection $categories;
+
     public function __construct()
     {
         $this->seasons = new ArrayCollection();
         $this->characters = new ArrayCollection();
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -60,12 +64,12 @@ class Series
         return $this;
     }
 
-    public function getResume(): ?string
+    public function getSummary(): ?string
     {
         return $this->summary;
     }
 
-    public function setResume(?string $summary): static
+    public function setSummary(?string $summary): static
     {
         $this->summary = $summary;
 
@@ -86,12 +90,12 @@ class Series
 
 
 
-    public function getDateDiff(): ?\DateTimeInterface
+    public function getReleaseDate(): ?\DateTimeInterface
     {
         return $this->releaseDate;
     }
 
-    public function setDateDiff(\DateTimeInterface $releaseDate): static
+    public function setReleaseDate(\DateTimeInterface $releaseDate): static
     {
         $this->releaseDate = $releaseDate;
 
@@ -163,6 +167,33 @@ class Series
     public function setTrailerUrl(?string $trailerUrl): static
     {
         $this->trailerUrl = $trailerUrl;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->addSeries($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeSeries($this);
+        }
 
         return $this;
     }

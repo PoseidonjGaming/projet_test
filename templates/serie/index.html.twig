@@ -17,10 +17,10 @@
             <p></p>
             <div class="card md-4" style="width: 24rem;">
                 <a class="card-img-top"  href="{{path('detail_serie',{'id': uneSerie.id})}}">
-                    <img  src="photo/{{ uneSerie.affiche }}" alt="En savoir plus" width="100%" height="500">
+                    <img  src="photo/{{ uneSerie.poster }}" alt="En savoir plus" width="100%" height="500">
                 </a>
                 <div class="card-body">
-                    <p>Nom: {{uneSerie.nom}}</p>
+                    <p>Nom: {{uneSerie.name}}</p>
                     <p>Première diffusion le  {{uneSerie.releaseDate|date("d/m/Y")}}</p>
                     <p>Résumé: {{uneSerie.summary}}</p>
                 </div>

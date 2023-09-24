@@ -5,7 +5,6 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Serie;
 use App\Entity\Acteur;
 use App\Entity\Character;
 use App\Entity\Personnage;
@@ -24,13 +23,13 @@ class SerieController extends AbstractController
     public function index(EntityManagerInterface $entityManager): Response
     {
 
-        $rep = $entityManager->getRepository(Serie::class);
+        $rep = $entityManager->getRepository(Series::class);
         $lesSerie = $rep->findAll();
 
         foreach ($lesSerie as $serie) {
-            $summary = $serie->getResume();
+            $summary = $serie->getSummary();
             $summaryM = substr($summary, 0, 150) . '...';
-            $serie->setResume($summaryM);
+            $serie->setSummary($summaryM);
         }
 
         return $this->render('serie/index.html.twig', [
@@ -50,12 +49,12 @@ class SerieController extends AbstractController
                 $serie->setName($_POST['inputNom_' . $i]);
             }
             if ($_POST['inputResume_' . $i] != '') {
-                $serie->setResume($_POST['inputResume_' . $i]);
+                $serie->setSummary($_POST['inputResume_' . $i]);
             }
             if ($_POST['inputDate_' . $i] != '') {
                 $date = new \DateTime($_POST['inputDate_' . $i]);
 
-                $serie->setDateDiff($date);
+                $serie->setReleaseDate($date);
             }
             if ($_POST['inputSaison_' . $i] != '') {
 
@@ -85,7 +84,7 @@ class SerieController extends AbstractController
                 }
             }
             if ($_POST['inputURL_' . $i] != '') {
-                $serie->setUrlBa($_POST['inputURL_' . $i]);
+                $serie->setTrailerUrl($_POST['inputURL_' . $i]);
             }
             $entityManager->persist($serie);
         }

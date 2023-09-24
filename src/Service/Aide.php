@@ -2,25 +2,28 @@
 
 namespace App\Service;
 
-use App\Entity\Serie;
+use App\Entity\Series;
 use App\Entity\Saison;
 use App\Entity\Acteur;
+use App\Entity\Actor;
+use App\Entity\Character;
 use App\Entity\Personnage;
 use App\Entity\Episode;
+use App\Entity\Season;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Ods as Write;
 use PhpOffice\PhpSpreadsheet\Reader\Ods;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 
 class Aide extends AbstractController
 {
-    public function import_serie()
+    public function import_serie(EntityManagerInterface $entityManager)
     {
-        $repSerie = $entityManager->getRepository(Serie::class);
+        $repSerie = $entityManager->getRepository(Series::class);
         $repSaison = $entityManager->getRepository(Saison::class);
-        $entityManager = $this->getDoctrine()->getManager();
 
         $reader = new Ods();
 
@@ -37,9 +40,9 @@ class Aide extends AbstractController
         $titreCol = array();
 
         for ($ligne = 1; $ligne <= $maxLigne; $ligne++) {
-            $serie = new Serie();
+            $serie = new Series();
             for ($col = 1; $col <= $maxColId; $col++) {
-                $value = $worksheet->getCellByColumnAndRow($col, $ligne)->getValue();
+                $value = $worksheet->getCell($col, $ligne)->getValue();
 
                 if ($value != null) {
 
@@ -48,31 +51,31 @@ class Aide extends AbstractController
                     } else {
 
                         if ($col == $titreCol['Nom']) {
-                            $serie->setNom($value);
+                            $serie->setName($value);
                         }
                         if ($col == $titreCol['Résumé']) {
-                            $serie->setResume($value);
+                            $serie->setSummary($value);
                         }
                         if ($col == $titreCol['Date']) {
                             $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
 
-                            $serie->setDateDiff($date);
+                            $serie->setReleaseDate($date);
                         }
                         if ($col == $titreCol['Saison']) {
 
                             for ($i = 1; $i <= intval($value); $i++) {
-                                $saison = new Saison();
-                                $saison->setNbEpisode(1);
+                                $saison = new Season();
+                                $saison->setNumero(1);
                                 $saison->setNumero($i);
-                                $serie->addSaison($saison);
+                                $serie->addSeason($saison);
                                 $entityManager->persist($saison);
                             }
                         }
                         if ($col == $titreCol['Affiche']) {
-                            $serie->setAffiche($value);
+                            $serie->setPoster($value);
                         }
                         if ($col == $titreCol['URL Bande Annonce']) {
-                            $serie->setUrlBa($value);
+                            $serie->setTrailerUrl($value);
                         }
 
                         if ($col == $maxColId) {
@@ -86,10 +89,9 @@ class Aide extends AbstractController
         unlink($this->getParameter('photo_directory') . 'import/serie.ods');
     }
 
-    public function import_acteur()
+    public function import_acteur(EntityManagerInterface $entityManager)
     {
         $repActeur = $entityManager->getRepository(Acteur::class);
-        $entityManager = $this->getDoctrine()->getManager();
 
         $reader = new Ods();
 
@@ -106,9 +108,9 @@ class Aide extends AbstractController
         $titreCol = array();
 
         for ($ligne = 1; $ligne <= $maxLigne; $ligne++) {
-            $acteur = new Acteur();
+            $acteur = new Actor();
             for ($col = 1; $col <= $maxColId; $col++) {
-                $value = $worksheet->getCellByColumnAndRow($col, $ligne)->getValue();
+                $value = $worksheet->getCell($col, $ligne)->getValue();
 
                 if ($value != null) {
 
@@ -117,10 +119,10 @@ class Aide extends AbstractController
                     } else {
 
                         if ($col == $titreCol['Nom']) {
-                            $acteur->setNom($value);
+                            $acteur->setLastname($value);
                         }
                         if ($col == $titreCol['Prénom']) {
-                            $acteur->setPrenom($value);
+                            $acteur->setFirstname($value);
                         }
                         if ($col == $maxColId) {
                             $entityManager->persist($acteur);
@@ -133,12 +135,11 @@ class Aide extends AbstractController
         unlink($this->getParameter('photo_directory') . 'import/acteur.ods');
     }
 
-    public function import_episode()
+    public function import_episode(EntityManagerInterface $entityManager)
     {
         $repEp = $entityManager->getRepository(Episode::class);
         $repSerie = $entityManager->getRepository(Serie::class);
         $repSaison = $entityManager->getRepository(Saison::class);
-        $entityManager = $this->getDoctrine()->getManager();
 
 
 
@@ -157,7 +158,7 @@ class Aide extends AbstractController
         for ($ligne = 1; $ligne <= $maxLigne; $ligne++) {
             $episode = new Episode();
             for ($col = 1; $col <= $maxColId; $col++) {
-                $value = $worksheet->getCellByColumnAndRow($col, $ligne)->getValue();
+                $value = $worksheet->getCell($col, $ligne)->getValue();
 
                 if ($value != null) {
 
@@ -166,21 +167,21 @@ class Aide extends AbstractController
                     } else {
 
                         if ($col == $titreCol['Nom épisode']) {
-                            $episode->setNom($value);
+                            $episode->setName($value);
                         }
                         if ($col == $titreCol['Résumé épisode']) {
                             $episode->setResume($value);
                         }
                         if ($col == $titreCol['Date ep']) {
                             $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
-                            $episode->setDatePremDiff($date);
+                            $episode->setRealeseDate($date);
                         }
 
                         if ($col == $titreCol['nom série']) {
                             $serie = $repSerie->findUneSerieByName($value);
                             if ($serie == null) {
-                                $serieNew = new Serie();
-                                $serieNew->setNom($value);
+                                $serieNew = new Series();
+                                $serieNew->setName($value);
 
                                 $entityManager->persist($serieNew);
                             }
@@ -192,13 +193,12 @@ class Aide extends AbstractController
                                     $saison->setNbEpisode($saison->getNbEpisode() + 1);
                                 }
                             } else {
-                                $saison = new Saison();
+                                $saison = new Season();
                                 $saison->setNumero(1);
-                                $saison->setNbEpisode(1);
-                                $saison->setSerie($serie);
+                                $saison->setSeries($serie);
                             }
                             $entityManager->persist($saison);
-                            $episode->setSaison($saison);
+                            $episode->setSeason($saison);
                         }
 
                         if ($col == $maxColId) {
@@ -212,14 +212,8 @@ class Aide extends AbstractController
         unlink($this->getParameter('photo_directory') . 'import/episode.ods');
     }
 
-    public function import_personnage()
+    public function import_personnage(EntityManagerInterface $entityManager)
     {
-        $entityManager = $this->getDoctrine()->getManager();
-
-
-
-
-
         $reader = new Ods();
 
         $reader->setReadDataOnly(TRUE);
@@ -235,9 +229,9 @@ class Aide extends AbstractController
         $titreCol = array();
 
         for ($ligne = 1; $ligne <= $maxLigne; $ligne++) {
-            $personnage = new Personnage();
+            $personnage = new Character();
             for ($col = 1; $col <= $maxColId; $col++) {
-                $value = $worksheet->getCellByColumnAndRow($col, $ligne)->getValue();
+                $value = $worksheet->getCell($col, $ligne)->getValue();
 
                 if ($value != null) {
 
@@ -246,29 +240,29 @@ class Aide extends AbstractController
                     } else {
 
                         if ($col == $titreCol['Nom']) {
-                            $personnage->setNom($value);
+                            $personnage->setName($value);
                         }
                         if ($col == $titreCol['Acteur']) {
                             $array_acteur = explode(' ', $value);
                             $acteur = $entityManager->getRepository(Acteur::class)->findActorByIdAndName($array_acteur[0], $array_acteur[1]);
                             if ($acteur == null) {
-                                $acteur = new Acteur();
-                                $acteur->setNom($array_acteur[1]);
-                                $acteur->setPrenom($array_acteur[0]);
+                                $acteur = new Actor();
+                                $acteur->setLastname($array_acteur[1]);
+                                $acteur->setFirstname($array_acteur[0]);
                                 $entityManager->persist($acteur);
                                 $entityManager->flush();
                             }
-                            $personnage->setActeur($acteur);
+                            $personnage->addActor($acteur);
                         }
                         if ($col == $titreCol['Série']) {
                             $serie = $entityManager->getRepository(Serie::class)->findUneSerieByName($value);
                             if ($serie == null) {
-                                $serie = new Serie();
-                                $serie->setNom($value);
+                                $serie = new Series();
+                                $serie->setName($value);
                                 $entityManager->persist($serie);
                                 $entityManager->flush();
                             }
-                            $personnage->setSerie($serie);
+                            $personnage->addSeries($serie);
                         }
 
 
@@ -283,21 +277,15 @@ class Aide extends AbstractController
         unlink($this->getParameter('photo_directory') . 'import/personnage.ods');
     }
 
-    public function export_serie($get)
+    public function export_serie($get, EntityManagerInterface $entityManager)
     {
-
-        $repSerie = $entityManager->getRepository(Serie::class);
-        $entityManager = $this->getDoctrine()->getManager();
-
-
-
 
         $spread = new SpreadSheet();
         $writer = new Write($spread);
 
         $data = [['Nom', 'Résumé', 'Date', 'Saison', 'Affiche', 'URL Bande Annonce']];
         if ($get == []) {
-            $series = $repSerie->findAll();
+            $series = $entityManager->getRepository(Series::class)->findAll();
         } elseif ($get != []) {
             $tab = explode(',', $get['listeExport']);
             $series = [];
@@ -326,10 +314,10 @@ class Aide extends AbstractController
         }
     }
 
-    public function export_episode($get)
+    public function export_episode($get, $entityManager)
     {
         $repEpisode = $entityManager->getRepository(Episode::class);
-        $entityManager = $this->getDoctrine()->getManager();
+        
 
 
 
@@ -366,10 +354,9 @@ class Aide extends AbstractController
             $writer->save($this->getParameter('photo_directory') . 'export/episode.ods');
         }
     }
-    public function export_personnage($get)
+    public function export_personnage($get, EntityManagerInterface $entityManager)
     {
         $repPerso = $entityManager->getRepository(Personnage::class);
-        $entityManager = $this->getDoctrine()->getManager();
 
 
         $spread = new SpreadSheet();
@@ -406,10 +393,9 @@ class Aide extends AbstractController
         }
     }
 
-    public function export_acteur($get)
+    public function export_acteur($get, EntityManagerInterface $entityManager)
     {
         $repActeur = $entityManager->getRepository(Acteur::class);
-        $entityManager = $this->getDoctrine()->getManager();
 
         $spread = new SpreadSheet();
         $writer = new Write($spread);
