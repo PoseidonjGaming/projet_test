@@ -37,8 +37,10 @@ class Series
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $trailerUrl = null;
 
-    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'series')]
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'series')]
     private Collection $categories;
+
+
 
     public function __construct()
     {
@@ -183,7 +185,6 @@ class Series
     {
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
-            $category->addSeries($this);
         }
 
         return $this;
@@ -191,9 +192,7 @@ class Series
 
     public function removeCategory(Category $category): static
     {
-        if ($this->categories->removeElement($category)) {
-            $category->removeSeries($this);
-        }
+        $this->categories->removeElement($category);
 
         return $this;
     }

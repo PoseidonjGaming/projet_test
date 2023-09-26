@@ -18,13 +18,14 @@ class Category
     #[ORM\Column(length: 255, nullable: false)]
     private string $name = "";
 
-    #[ORM\ManyToMany(targetEntity: Series::class, inversedBy: 'categories')]
+    #[ORM\ManyToMany(targetEntity: Series::class, mappedBy: 'categories')]
     private Collection $series;
 
     public function __construct()
     {
         $this->series = new ArrayCollection();
     }
+
 
     public function getId(): ?int
     {
@@ -55,6 +56,7 @@ class Category
     {
         if (!$this->series->contains($series)) {
             $this->series->add($series);
+            $series->addCategory($this);
         }
 
         return $this;
@@ -62,7 +64,9 @@ class Category
 
     public function removeSeries(Series $series): static
     {
-        $this->series->removeElement($series);
+        if ($this->series->removeElement($series)) {
+            $series->removeCategory($this);
+        }
 
         return $this;
     }
