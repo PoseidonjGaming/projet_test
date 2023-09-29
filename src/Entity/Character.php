@@ -25,10 +25,15 @@ class Character
     #[ORM\ManyToMany(targetEntity: Actor::class, inversedBy:'characters')]
     private Collection $actors;
 
+    #[ORM\ManyToMany(targetEntity: Movie::class, inversedBy: 'characters')]
+    private Collection $movies;
+
+   
     public function __construct()
     {
         $this->series = new ArrayCollection();
         $this->actors = new ArrayCollection();
+        $this->movies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -95,6 +100,30 @@ class Character
         if ($this->actors->removeElement($actor)) {
             $actor->removeCharacter($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Movie>
+     */
+    public function getMovies(): Collection
+    {
+        return $this->movies;
+    }
+
+    public function addMovie(Movie $movie): static
+    {
+        if (!$this->movies->contains($movie)) {
+            $this->movies->add($movie);
+        }
+
+        return $this;
+    }
+
+    public function removeMovie(Movie $movie): static
+    {
+        $this->movies->removeElement($movie);
 
         return $this;
     }
